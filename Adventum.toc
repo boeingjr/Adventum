@@ -1,0 +1,12 @@
+## Interface: 30300
+# Interface: 11200
+## Title: Adventum
+## Notes: The leveling addon for the distracted quest adventurer
+## Author: boeingJr
+## SavedVariablesPerCharacter: AdventumNode, AdventumIgnoreQuests, AdventumBackup
+Adventum.xml
+Classes.lua
+#Undead_1_12.lua
+#Orc_1_12.lua
+Belf_1_12.lua
+Adventum.lua

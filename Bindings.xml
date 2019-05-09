@@ -1,0 +1,14 @@
+<Bindings header="Adventum">
+  <Binding name="Toggle Window" header="ADVENTUM" category="ADDONS">
+    Adventum_Toggle();
+  </Binding>
+  <Binding name="Skip forward">
+    Adventum_SkipForward();
+  </Binding>
+  <Binding name="Backup">
+    Adventum_Backup();
+  </Binding>
+  <Binding name="Restore">
+    Adventum_Restore();
+  </Binding>
+</Bindings>

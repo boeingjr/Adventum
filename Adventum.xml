@@ -1,0 +1,202 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+    http://wowprogramming.com/FrameXML/UI.xsd">
+<!--
+    <Frame name="AdventumSideBarLeft" parent="UIParent" frameStrata="BACKGROUND">
+      <Size>
+	<AbsDimension x="460" y="1024" />
+      </Size>
+      <Anchors>
+	<Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="UIParent"/>
+      </Anchors>
+      <Layers>
+	<Layer level="BACKGROUND" setAllPoints="true">
+	  <Texture>
+            <Size x="460" y="1080" />
+            <Color a="1" r="0" g="0" b="0" />
+	  </Texture>
+	</Layer>
+      </Layers>
+    </Frame>
+    <Frame name="AdventumSideBarRight" parent="UIParent" frameStrata="BACKGROUND">
+      <Size>
+	<AbsDimension x="460" y="1024" />
+      </Size>
+      <Anchors>
+	<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" relativeTo="UIParent"/>
+      </Anchors>
+      <Layers>
+	<Layer level="BACKGROUND" setAllPoints="true">
+	  <Texture>
+            <Size x="460" y="1080" />
+            <Color a="1" r="0" g="0" b="0" />
+	  </Texture>
+	</Layer>
+      </Layers>
+    </Frame>
+-->
+    <Frame name="AdventumCanvas" parent="UIParent" frameStrata="DIALOG" toplevel="true" enableMouse="true" movable="true">
+      <Scripts>
+	<OnLoad>AdventumCanvas:RegisterForDrag("LeftButton");</OnLoad>
+	<OnDragStart>AdventumCanvas:StartMoving();</OnDragStart>
+	<OnDragStop>AdventumCanvas:StopMovingOrSizing();</OnDragStop>
+      </Scripts>
+      <Size>
+	<AbsDimension x="300" y="200" />
+	<!--AbsDimension x="440" y="356" /-->
+      </Size>
+      <Anchors>
+	<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" relativeTo="UIParent">
+	  <Offset x="20" y="20"/>
+	</Anchor>
+      </Anchors>
+      <Layers>
+	<Layer level="BACKGROUND" setAllPoints="true">
+	  <Texture>
+            <Size x="300" y="200" />
+            <!--Size x="440" y="356" /-->
+            <Color a=".2" r="0.2" g="0.2" b="0.95" />
+	  </Texture>
+	</Layer>
+	<Layer level="OVERLAY">
+	  <FontString name="Adventum_Title" inherits="GameFontNormalLarge" text="Adventum">
+            <Color a="1" r="0.83" g="0.69" b="0.22" />
+	    <Anchors>
+	      <Anchor point="TOPLEFT">
+		<Offset x="5" y="-5"/>
+	      </Anchor>
+	    </Anchors>
+	  </FontString>
+	  <FontString name="Adventum_Line1" inherits="GameFontNormal" text="Accept: The Mindless Ones">
+            <Color a="1" r="0.71" g="0.11" b="0.003" />
+	    <Anchors>
+	      <Anchor point="TOPLEFT">
+		<Offset x="5" y="-30"/>
+	      </Anchor>
+	    </Anchors>
+	  </FontString>
+	  <FontString name="Adventum_Line2" inherits="GameFontNormal" text="Complete: Rattling the Rattlecages">
+            <Color a="1" r="0.71" g="0.11" b="0.003" />
+	    <Anchors>
+	      <Anchor point="TOPLEFT">
+		<Offset x="5" y="-50"/>
+	      </Anchor>
+	    </Anchors>
+	  </FontString>
+	  <FontString name="Adventum_Line3" inherits="GameFontNormal" text="Deliver: The Damned">
+            <Color a="1" r="0.71" g="0.11" b="0.003" />
+	    <Anchors>
+	      <Anchor point="TOPLEFT">
+		<Offset x="5" y="-70"/>
+	      </Anchor>
+	    </Anchors>
+	  </FontString>
+	  <FontString name="Adventum_Line4" inherits="GameFontNormal" text="Do: Get Piermonterallo from Bank">
+            <Color a="1" r="0.83" g="0.69" b="0.22" />
+	    <Anchors>
+	      <Anchor point="TOPLEFT">
+		<Offset x="5" y="-90"/>
+	      </Anchor>
+	    </Anchors>
+	  </FontString>
+	  <FontString name="Adventum_Line5" inherits="GameFontNormal" text="Do: Sell and Check Auction House">
+            <Color a="1" r="0.83" g="0.69" b="0.22" />
+	    <Anchors>
+	      <Anchor point="TOPLEFT">
+		<Offset x="5" y="-110"/>
+	      </Anchor>
+	    </Anchors>
+	  </FontString>
+	  <FontString name="Adventum_Line6" inherits="GameFontNormal" text="Accept: Fields of Grief">
+            <Color a="1" r="0.71" g="0.11" b="0.003" />
+	    <Anchors>
+	      <Anchor point="TOPLEFT">
+		<Offset x="5" y="-130"/>
+	      </Anchor>
+	    </Anchors>
+	  </FontString>
+	  <FontString name="Adventum_Line7" inherits="GameFontNormal" text="Deliver: The Damned">
+            <Color a="1" r="0.71" g="0.11" b="0.003" />
+	    <Anchors>
+	      <Anchor point="TOPLEFT">
+		<Offset x="5" y="-150"/>
+	      </Anchor>
+	    </Anchors>
+	  </FontString>
+	  <FontString name="Adventum_Line8" inherits="GameFontNormal" text="Bound: Set Hearthstone to Brill">
+            <Color a="1" r="0.6059" g="0.5706" b="0.4882" />
+	    <Anchors>
+	      <Anchor point="TOPLEFT">
+		<Offset x="5" y="-170"/>
+	      </Anchor>
+	    </Anchors>
+	  </FontString>
+	  <FontString name="Adventum_Line9" inherits="GameFontNormal" text="Accepted: Delivery to Silverpine Forest">
+            <Color a="1" r="0.6059" g="0.5706" b="0.4882" />
+	    <Anchors>
+	      <Anchor point="TOPLEFT">
+		<Offset x="5" y="-190"/>
+	      </Anchor>
+	    </Anchors>
+	  </FontString>
+	  <FontString name="Adventum_Line10" inherits="GameFontNormal" text="Completed: At War With The Scarlet Crusade">
+            <Color a="1" r="0.6059" g="0.5706" b="0.4882" />
+	    <Anchors>
+	      <Anchor point="TOPLEFT">
+		<Offset x="4" y="-210"/>
+	      </Anchor>
+	    </Anchors>
+	  </FontString>
+	  <FontString name="Adventum_Line11" inherits="GameFontNormal" text="Accept: Fields of Grief">
+            <Color a="1" r="0.71" g="0.11" b="0.003" />
+	    <Anchors>
+	      <Anchor point="TOPLEFT">
+		<Offset x="5" y="-230"/>
+	      </Anchor>
+	    </Anchors>
+	  </FontString>
+	  <FontString name="Adventum_Line12" inherits="GameFontNormal" text="Deliver: The Damned">
+            <Color a="1" r="0.71" g="0.11" b="0.003" />
+	    <Anchors>
+	      <Anchor point="TOPLEFT">
+		<Offset x="5" y="-250"/>
+	      </Anchor>
+	    </Anchors>
+	  </FontString>
+	  <FontString name="Adventum_Line13" inherits="GameFontNormal" text="Bound: Set Hearthstone to Brill">
+            <Color a="1" r="0.6059" g="0.5706" b="0.4882" />
+	    <Anchors>
+	      <Anchor point="TOPLEFT">
+		<Offset x="5" y="-270"/>
+	      </Anchor>
+	    </Anchors>
+	  </FontString>
+	  <FontString name="Adventum_Line14" inherits="GameFontNormal" text="Accepted: Delivery to Silverpine Forest">
+            <Color a="1" r="0.6059" g="0.5706" b="0.4882" />
+	    <Anchors>
+	      <Anchor point="TOPLEFT">
+		<Offset x="5" y="-290"/>
+	      </Anchor>
+	    </Anchors>
+	  </FontString>
+	  <FontString name="Adventum_Line15" inherits="GameFontNormal" text="Completed: At War With The Scarlet Crusade we have quite a few mor.">
+            <Color a="1" r="0.6059" g="0.5706" b="0.4882" />
+	    <Anchors>
+	      <Anchor point="TOPLEFT">
+		<Offset x="4" y="-310"/>
+	      </Anchor>
+	    </Anchors>
+	  </FontString>
+	  <FontString name="Adventum_Line16" inherits="GameFontNormal" text="Completed: At War With The Scarlet Crusade we have quite a few mor.">
+            <Color a="1" r="0.6059" g="0.5706" b="0.4882" />
+	    <Anchors>
+	      <Anchor point="TOPLEFT">
+		<Offset x="4" y="-330"/>
+	      </Anchor>
+	    </Anchors>
+	  </FontString>
+	</Layer>
+      </Layers>
+    </Frame>
+</Ui>
