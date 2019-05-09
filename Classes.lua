@@ -108,19 +108,19 @@ do
       for i,qID in ipairs(obj) do
 	 if freshQuestLog[qID] then
 	    local line = "Accepted: " .. questDB[qID].t -- report it is picked up (OK)
-	    tcg(line)
+--	    tcg(line)
 	    updateLine(line, grey)
 	 elseif IsQuestFlaggedCompleted(qID) then
 	    local line = "Did:      " .. questDB[qID].t -- report it was tagged as ignored (warn)
-	    tcy(line)
+--	    tcy(line)
 	    updateLine(line, yellow)
 	 elseif AdventumIgnoreQuests[qID] then
 	    local line = "Ignored:      " .. questDB[qID].t -- report it was tagged as ignored (warn)
-	    tcy(line)
+--	    tcy(line)
 	    updateLine(line, yellow)
 	 else
 	    local line = "Accept:   " .. questDB[qID].t -- report it must be picked up (OK)
-	    tcr(line)
+--	    tcr(line)
 	    updateLine(line, red)
 	    res = false
 	 end
@@ -136,7 +136,7 @@ do
 
    local function deliverReport(obj)
       local res = true
-      tcd("deliverNode: "..tostring(obj))
+--      tcd("deliverNode: "..tostring(obj))
       local freshQuestLog = {}
       local logIndex = 1
       local titleFromQuestLog, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(logIndex)
@@ -148,7 +148,7 @@ do
 	       local ii = 1
 	       local defined = GetQuestLogLeaderBoard(ii, logIndex)
 	       if defined == nil then
-		  tcd("not marked as completed but has no objectives: " .. titleFromQuestLog)
+--		  tcd("not marked as completed but has no objectives: " .. titleFromQuestLog)
 		  freshQuestLog[questID] = true
 	       else
 		  freshQuestLog[questID] = false
@@ -159,34 +159,34 @@ do
 	 titleFromQuestLog, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(logIndex)
       end
       for i,qID in ipairs(obj) do
-	 tcd("looking at quest with ID " .. qID)
+--	 tcd("looking at quest with ID " .. qID)
 	 if freshQuestLog[qID] ~= nil and not freshQuestLog[qID] then
-	    tcd("FIRST looking at quest with ID " .. qID)
+--	    tcd("FIRST looking at quest with ID " .. qID)
 	    -- is this a quest that has nothing on todo list?  these are not marked as completed
 	    local line = "Not complete for deliver: " .. questDB[qID].t  -- report it needs to be delivered (warn)
 	    updateLine(line, yellow)
-	    tcy(line)
+--	    tcy(line)
 	 elseif freshQuestLog[qID] then
-	    tcd("SEC looking at quest with ID " .. qID)
+--	    tcd("SEC looking at quest with ID " .. qID)
 	    local line = "Deliver:   " .. questDB[qID].t -- report it needs to be delivered (OK)
-	    tcr(line)
+--	    tcr(line)
 	    updateLine(line, red)
 	    res = false
 	 elseif IsQuestFlaggedCompleted(qID) then
-	    tcd("THIRD looking at quest with ID " .. qID)
+--	    tcd("THIRD looking at quest with ID " .. qID)
 	    local line = "Did:   " .. questDB[qID].t -- report it needs to be delivered (OK)
-	    tcr(line)
+--	    tcr(line)
 	    updateLine(line, red)
 	 elseif AdventumIgnoreQuests[qID] then
-	    tcd("FOURTH looking at quest with ID " .. qID)
+--	    tcd("FOURTH looking at quest with ID " .. qID)
 	    local line = "Ignored: " .. questDB[qID].t  -- report it was delivered (OK)
-	    tcg(line)
+--	    tcg(line)
 	    updateLine(line, grey)
 	 else
-	    tcd("FIFTH looking at quest with ID " .. qID)
+--	    tcd("FIFTH looking at quest with ID " .. qID)
 	    local line = "Not in quest log: " .. questDB[qID].t -- report it was not picked up (warn)
 	    updateLine(line, yellow)
-	    tcy(line) -- report it was not picked up (warn)
+--	    tcy(line) -- report it was not picked up (warn)
 	 end
       end
       return res
@@ -200,7 +200,7 @@ do
 
    local function completeReport(obj)
       local res = true
-      tcd("completeNode: "..tostring(obj))
+--      tcd("completeNode: "..tostring(obj))
       local freshQuestLog = {}
       local logIndex = 1
       local titleFromQuestLog, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(logIndex)
@@ -218,26 +218,26 @@ do
       for i,qID in ipairs(obj) do
 	 if freshQuestLog[qID] ~= nil and freshQuestLog[qID].completed then
 	    local line = "Completed: " .. questDB[qID].t -- report it is completed (OK)
-	    tcg(line)
+--	    tcg(line)
 	    updateLine(line, grey)
 	 elseif freshQuestLog[qID] ~= nil and not freshQuestLog[qID].completed then
 	    local line = "Complete:  " .. questDB[qID].t -- report it needs to be completed (OK)
-	    tcr(line)
+--	    tcr(line)
 	    updateLine(line, red)
 	    AddQuestWatch(freshQuestLog[qID].index) -- the addon turns off auto quest watch to make this work bettah
 	    res = false
 	 elseif AdventumIgnoreQuests[qID] then
 	    local line = "Ignored:       " .. questDB[qID].t -- report it was done before (warn)
-	    tcy(line)
+--	    tcy(line)
 	    updateLine(line, yellow)
 	 elseif IsQuestFlaggedCompleted(qID) then
 	    local line = "Did:       " .. questDB[qID].t -- report it was done before (warn)
-	    tcy(line)
+--	    tcy(line)
 	    updateLine(line, yellow)
 	 else
 	    local line = "Not in active list: " .. questDB[qID].t -- report it was not picked up (warn)
 	    updateLine(line, yellow)
-	    tcy(line)
+--	    tcy(line)
 	 end
       end
       return res
@@ -251,7 +251,7 @@ do
 
    local function otherReport(obj)
       for i,v in ipairs(obj) do
-	 tcy(v)
+--	 tcy(v)
 	 updateLine(v, yellow)
       end
       return true
@@ -266,7 +266,7 @@ do
    local function dingReport(obj)
       if AdventumPlayerLevel() < obj.lvl then 
 	 local line = "Grind to level " .. obj.lvl
-	 tcy(line)
+--	 tcy(line)
 	 updateLine(line, yellow)
 	 return false
       end
@@ -283,16 +283,16 @@ do
    local function lootReport(obj)
       local res = true
       for qID,list in pairs(obj.tbl) do
-	 tcd("looking at loot for quest .. " .. qID)
+--	 tcd("looking at loot for quest .. " .. qID)
 	 if not IsQuestFlaggedCompleted(qID) and not AdventumIgnoreQuests[qID] then
 	    for i, v in ipairs(list) do
 	       if AdventumIsInBag(v) then
 		  local line = "Looted: " .. v
-		  tcg(line)
+--		  tcg(line)
 		  updateLine(line, grey)
 	       else
 		  local line = "Loot:   " .. v
-		  tcy(line)
+--		  tcy(line)
 		  updateLine(line, yellow)
 		  res = false
 	       end
@@ -358,9 +358,9 @@ do
 	 if questDB[questID].class == nil or questDB[questID].class == AdventumPlayerClass then
 	    stripped[i] = questID
 	    i = i+1
-	    tcd("Do accept: " .. questDB[questID].t)
+--	    tcd("Do accept: " .. questDB[questID].t)
 	 else
-	    tcd("For " .. questDB[questID].class .. ", not for ".. AdventumPlayerClass..": " .. questDB[questID].t)
+--	    tcd("For " .. questDB[questID].class .. ", not for ".. AdventumPlayerClass..": " .. questDB[questID].t)
 	 end
       end
       if i > 1 then

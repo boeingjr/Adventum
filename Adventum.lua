@@ -183,7 +183,7 @@ report = function()
 	 Adventum_Line1:SetText("At end of node trail after " .. AdventumNode)
 	 Adventum_Line1:SetTextColor(yellow.r, yellow.g, yellow.b, yellow.a)
        else
-	 tcd("Moving to node " .. currentNode.nxt)
+--	 tcd("Moving to node " .. currentNode.nxt)
 	 AdventumNode = currentNode.nxt
 	 if AdventumNodeTrail[AdventumNode].Loot then
 	     BAG_UPDATE_EVENT:RegisterEvent("BAG_UPDATE")
@@ -245,31 +245,28 @@ function IsQuestFlaggedCompleted(questID)
 end
 
 -- TODO: remove this for Classic, wrath specific, Classic can call IsIsQuestFlaggedCompleted directly
-local wrathInitialized
-local wrathQueried
+local wrathInitialized = false
+local wrathQueried = false
 local QUEST_QUERY_COMPLETE_EVENT = CreateFrame("Frame")
 QUEST_QUERY_COMPLETE_EVENT:RegisterEvent("QUEST_QUERY_COMPLETE")
 QUEST_QUERY_COMPLETE_EVENT:SetScript("OnEvent",
    function()
-      tcd("Handler: QUEST_QUERY_COMPLETE_EVENT")
+      tcb("Handler: QUEST_QUERY_COMPLETE_EVENT")
       CompletedQuests = GetQuestsCompleted()
+      wrathQueried = true
       report()
    end
 )
 
-local latestWatchUpdate
 
 QUEST_LOG_UPDATE_EVENT:RegisterEvent("QUEST_LOG_UPDATE")
 QUEST_LOG_UPDATE_EVENT:SetScript("OnEvent",
   function(self, event)
-    tcd("Handler: QUEST_LOG_UPDATE_EVENT")
-    QUEST_LOG_UPDATE_EVENT:UnregisterEvent("QUEST_LOG_UPDATE")
-    if latestWatchUpdate then
-      local titleFromQuestLog, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(latestWatchUpdate)
-      latestWatchUpdate = nil
-      tcd("UPDATE: update on quest " .. titleFromQuestLog)
+--     tcb("Handler: QUEST_LOG_UPDATE")
+    if wrathQueried then
       report()
-    else
+    elseif not wrathInitialized then
+       wrathInitialized = true
        tcd("UPDATE: initialization")
        QueryQuestsCompleted() -- TODO: remove for Classic, this was wrath API
        -- do whatever needs to be done initially
@@ -278,18 +275,6 @@ QUEST_LOG_UPDATE_EVENT:SetScript("OnEvent",
   end
 )
     
-QUEST_WATCH_UPDATE_EVENT:RegisterEvent("QUEST_WATCH_UPDATE")
-QUEST_WATCH_UPDATE_EVENT:SetScript("OnEvent", 
-    function(self, event, logIndex)
-      tcd("Handler: QUEST_LOG_WATCH_EVENT " .. logIndex)
-      local titleFromQuestLog, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(logIndex)
-      tcd("WATCH: watch on quest " .. titleFromQuestLog)
-      latestWatchUpdate = logIndex
-      QUEST_LOG_UPDATE_EVENT:RegisterEvent("QUEST_LOG_UPDATE")
-      report()
-    end
-)
-
 -- TODO: this event will fire in Classic
 QUEST_TURNED_IN_EVENT:RegisterEvent("QUEST_TURNED_IN")
 QUEST_TURNED_IN_EVENT:SetScript("OnEvent",
@@ -308,11 +293,32 @@ local completesQuest
 -- wrath API doesn't have a QUEST_COMPLETED, assume we always get a chat message indicating completion
 CHAT_MSG_SYSTEM_EVENT:RegisterEvent("CHAT_MSG_SYSTEM")
 CHAT_MSG_SYSTEM_EVENT:SetScript("OnEvent",
-  function(self, event, questID, xpReward, moneyReward)
-      tcd("Handler: CHAT_MSG_SYSTEM")
-      QueryQuestsCompleted() -- TODO: remove for Classic, this was wrath API
-     -- this event is fired whenever a quest dialog is closed
-     -- this could be a good time to check if we've completed more quests
+  function(self, event, msg)
+     -- this event is fired before the quest is removed from quest log, so quest log could still have the quest
+     -- rely on QUEST_LOG_UPDATE_EVENT for actual reports
+     -- and just set the quest to completed
+     local len = strlen(msg)
+     local ending = strsub(msg, strlen(msg) - 10)
+     tcb("ending looks like this: '" .. ending .. "'")
+     if ending == " completed." then
+	local questName = strsub(msg, 1, strlen(msg) - 11)
+	local logIndex = 1
+	local finalID
+	local titleFromQuestLog, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(logIndex)     
+	while titleFromQuestLog do
+	   if questName == titleFromQuestLog then
+	      finalID = questID
+	   end
+	   logIndex = logIndex + 1
+	   titleFromQuestLog, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(logIndex)     
+	end
+	if finalID then
+	   CompletedQuests[questID] = true
+	   tcb(questName .. " was found in log and has ID: " .. questID .. ", marking it as completed")
+	else
+	   tcb(questName .. " wasn't found in log, must find other source of questID if this is ever shown")
+	end
+     end
   end
 )
 
