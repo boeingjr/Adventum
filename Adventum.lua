@@ -1,14 +1,3 @@
-AdventumGold = { r=0.83, g=0.69, b=0.95, a=1 }
-AdventumRed = { r=0.71, g=0.11, b=0.003, a=1 }
-AdventumGrey = { r=0.6059, g=0.5706, b=0.4882, a=1 }
-function AdventumToChatDebug(msg) DEFAULT_CHAT_FRAME:AddMessage(msg, 0.9, 0.7, 0.7) end
-function AdventumToChatBold(msg) DEFAULT_CHAT_FRAME:AddMessage(msg, 0.9, 0.3, 0.7) end
-function AdventumToChatGrey(msg) DEFAULT_CHAT_FRAME:AddMessage(msg, AdventumGrey.r, AdventumGrey.g, AdventumGrey.b) end
-function AdventumToChatRed(msg) DEFAULT_CHAT_FRAME:AddMessage(msg, AdventumRed.r, AdventumRed.g, AdventumRed.b) end
-function AdventumToChatGold(msg) DEFAULT_CHAT_FRAME:AddMessage(msg, AdventumGold.r, AdventumGold.g, AdventumGold.b) end
-AdventumActiveQuests = {}
-AdventumQuestDB = {}
-AdventumNodeTrail = {}
 local CompletedQuests
 
 local report
@@ -30,15 +19,6 @@ local QUEST_ACCEPTED_EVENT = CreateFrame("Frame")
 local CHAT_MSG_SYSTEM_EVENT = CreateFrame("Frame") -- wrath baby
 local UNIT_QUEST_LOG_CHANGED_EVENT = CreateFrame("Frame") -- wrath baby
 
-BINDING_HEADER_ADVENTUM = "Adventum"
-
-function string.starts(String,Start)
-   return string.sub(String,1,string.len(Start)) == Start
-end
-
-function string.ends(String,Start)
-   return string.sub(String,string.len(String) - string.len(Start),string.len(String)) == Start
-end
 
 local tcd = AdventumToChatDebug
 local tcb = AdventumToChatBold
@@ -297,11 +277,32 @@ CHAT_MSG_SYSTEM_EVENT:SetScript("OnEvent",
      -- this event is fired before the quest is removed from quest log, so quest log could still have the quest
      -- rely on QUEST_LOG_UPDATE_EVENT for actual reports
      -- and just set the quest to completed
-     local len = strlen(msg)
-     local ending = strsub(msg, strlen(msg) - 10)
-     tcb("ending looks like this: '" .. ending .. "'")
-     if ending == " completed." then
-	local questName = strsub(msg, 1, strlen(msg) - 11)
+     tcd("Handler: CHAT_MSG_SYSTEM")
+     local ending = " completed."
+
+     if string.ends(msg, ending) then
+	tcd("Handler: CHAT_MSG_SYSTEM: QUEST COMPLETED I")
+	local questName = strsub(msg, 1, strlen(msg) - strlen(ending))
+	local qquestID
+	local results = {}
+	AdventumForEachLogQuest(
+	   function(_titleFromQuestLog, _isComplete, _questID)
+	      tcd("comparing global: '" ..  questName .. "' with '" .. _titleFromQuestLog .. "'")
+	      if questName == _titleFromQuestLog then
+		 qquestID = _questID
+	      end
+	   end
+	)
+	if qquestID then
+	   CompletedQuests[qquestID] = true
+	   tcb(questName .. " was found in log and has ID: " .. qquestID .. ", marking it as completed")
+	else
+	   tcb(questName .. " wasn't found in log, must find other source of questID if this is ever shown")
+	end
+--[[
+
+
+
 	local logIndex = 1
 	local finalID
 	local titleFromQuestLog, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(logIndex)     
@@ -318,6 +319,7 @@ CHAT_MSG_SYSTEM_EVENT:SetScript("OnEvent",
 	else
 	   tcb(questName .. " wasn't found in log, must find other source of questID if this is ever shown")
 	end
+]]--
      end
   end
 )

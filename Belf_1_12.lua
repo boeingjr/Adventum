@@ -39,14 +39,14 @@ nt.DeliverNorthSanctum = node("DeliverNorthSanctum", nt.DeliverFirstQuestsInFalc
 end
 -- q = quest ID, t = title, l = level, r = requires level, n = next in series, o = opens quests, c = required completed quest, a = class
 Adventum_Belf_1_12_QDB={
-   [10068]={ q=10068, t="Well Watcher Solanian", class="PALADIN", c={9676}, l=2, r=2,},
-   [10069]={ q=10069, t="Well Watcher Solanian", class="MAGE", c={8328}, l=2, r=2,},
+   [10068]={ q=10068, t="Well Watcher Solanian", class="MAGE", c={8328}, l=2, r=2,},
+   [10069]={ q=10069, t="Well Watcher Solanian", class="PALADIN", c={9676}, l=2, r=2,},
    [10070]={ q=10070, t="Well Watcher Solanian", class="HUNTER", c={9393}, l=2, r=2,},
    [10071]={ q=10071, t="Well Watcher Solanian", class="ROGUE", c={9392}, l=2, r=2,},
    [10072]={ q=10072, t="Well Watcher Solanian", class="PRIEST", c={8564}, l=2, r=2,},
    [10073]={ q=10073, t="Well Watcher Solanian", class="WARLOCK", c={8563}, l=2, r=2,},
-   [9676]={ q=9676, t="Paladin Training", class="PALADIN", o={10068}, l=1, r=1,},
-   [8328]={ q=8328, t="Mage Training", class="MAGE",o={10069}, l=1, r=1,},
+   [9676]={ q=9676, t="Paladin Training", class="PALADIN", o={10069}, l=1, r=1,},
+   [8328]={ q=8328, t="Mage Training", class="MAGE",o={10068}, l=1, r=1,},
    [8564]={ q=8564, t="Priest Training", class="PRIEST",o={10070}, l=1, r=1,},
    [9392]={ q=9392, t="Rogue Training", class="ROGUE",o={10071}, l=1, r=1,},
    [9393]={ q=9393, t="Hunter Training", class="HUNTER",o={10072}, l=1, r=1,},
