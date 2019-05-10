@@ -282,8 +282,10 @@ do
 
    local function lootReport(obj)
       local res = true
+      tcd("loot report")
+      tcd("loot report" .. tostring(obj))
       for qID,list in pairs(obj.tbl) do
---	 tcd("looking at loot for quest .. " .. qID)
+	 tcd("looking at loot for quest .. " .. qID)
 	 if not IsQuestFlaggedCompleted(qID) and not AdventumIgnoreQuests[qID] then
 	    for i, v in ipairs(list) do
 	       if AdventumIsInBag(v) then

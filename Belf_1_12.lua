@@ -1,6 +1,6 @@
 local node = AdventumClassesNewNode
 
-function Adventum_Belf_1_12()
+function Adventum_Belf_1_6()
    local nt = {}
    nt.first = node("first", nil):accept(8325)
    nt.CompleteManaWyrms = node("CompleteManaWyrms", nt.first):complete(8325)
@@ -28,13 +28,20 @@ nt.DeliverPickUpFromCorpse = node("DeliverPickUpFromCorpse", nt.AcceptPickUpFrom
 nt.AcceptPickUpFromCorpseReturn = node("AcceptPickUpFromCorpseReturn", nt.DeliverPickUpFromCorpse):accept(9705)
 nt.DeliverPickUpFromCorpseReturn = node("DeliverPickUpFromCorpseReturn", nt.AcceptPickUpFromCorpseReturn):deliver(9705)
 nt.AcceptInnQuest = node("AcceptInnQuest", nt.DeliverPickUpFromCorpseReturn):accept(8350)
-nt.DeliverInnQuest = node("DeliverInnQuest", nt.AcceptInnQuest):deliver(8350)
---[[
-nt.AcceptFirstQuestsInFalconwingSquare = node("AcceptFirstQuestsInFalconwingSquare", nt.DeliverInnQuest):accept(8472, 8468, 8463):other("Bind to Falconwing Inn"):other("Sell and train professions if wanted")
-nt.CompleteFirstQuestsFromFalconwingSquare = node("CompleteFirstQuestsFromFalconwingSquare", nt.AcceptFirstQuestsInFalconwingSquare):complete(8472, 8468, 8463)
+nt.DeliverInnQuest = node("DeliverInnQuest", nt.AcceptInnQuest):deliver(8350):accept(9489)
+nt.CompletePriest = node("CompletePriest", nt.DeliverInnQuest):complete(9489)
+nt.DeliverPriest = node("DeliverPriest", nt.CompletePriest):deliver(9489)
+nt.last = node("last", nt.DeliverPriest):other("Quest path done, choose a new quest path")
+nt.firstII = node("firstII", nt.last):accept(8472, 8468, 8463):other("Sell and train professions if wanted", "Bind to Falconwing Inn")
+nt.CompleteFirstQuestsFromFalconwingSquare = node("CompleteFirstQuestsFromFalconwingSquare", nt.firstII):complete(8472, 8468, 8463)
 nt.DeliverFirstQuestsInFalconwingSquare = node("DeliverFirstQuestsInFalconwingSquare", nt.CompleteFirstQuestsFromFalconwingSquare):deliver(8472, 8468, 8463):accept(9352, 8895)
 nt.DeliverNorthSanctum = node("DeliverNorthSanctum", nt.DeliverFirstQuestsInFalconwingSquare):deliver(8895):accept(9119)
-]]--
+nt.lastII = node("lastII", nt.DeliverNorthSanctum):other("Choose a new quest path")
+   return nt
+end
+
+function Adventum_Belf_6_12()
+   local nt = {}
    return nt
 end
 -- q = quest ID, t = title, l = level, r = requires level, n = next in series, o = opens quests, c = required completed quest, a = class
@@ -65,4 +72,11 @@ Adventum_Belf_1_12_QDB={
    [8345]={ q=8345, t="The Shrine of Dath'Remar", c={8330}, l=4, r=2,},
    [8346]={ q=8346, t="Thirst Unending", l=3, r=2,},
    [8326]={ q=8326, t="Unfortunate Measures", c={8325}, n=8327, l=3, r=1,},
+   [8472]={ q=8472, t="Major Malfunction", l=0, r=0,}, 
+   [8468]={ q=8468, t="Wanted: Thaelis the Hungerer", l=0, r=0,}, 
+   [8463]={ q=8463, t="Unstable Mana Crystals", l=0, r=0,},
+   [9352]={ q=9352, t="heydiho", l=0, r=0,}, 
+   [8895]={ q=8895, t="hahahah", l=0, r=0,},
+   [9119]={ q=9119, t="fletto", l=0, r=0,},
+   [9489]={ q=9489, t="Cleansing the Scar", l=0, r=0, class="PRIEST",},
 }

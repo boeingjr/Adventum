@@ -43,7 +43,7 @@
 	<OnDragStop>AdventumCanvas:StopMovingOrSizing();</OnDragStop>
       </Scripts>
       <Size>
-	<AbsDimension x="300" y="200" />
+	<AbsDimension x="300" y="210" />
 	<!--AbsDimension x="440" y="356" /-->
       </Size>
       <Anchors>
@@ -54,7 +54,7 @@
       <Layers>
 	<Layer level="BACKGROUND" setAllPoints="true">
 	  <Texture>
-            <Size x="300" y="200" />
+            <Size x="300" y="210" />
             <!--Size x="440" y="356" /-->
             <Color a=".2" r="0.2" g="0.2" b="0.95" />
 	  </Texture>
@@ -140,6 +140,7 @@
 	      </Anchor>
 	    </Anchors>
 	  </FontString>
+<!--
 	  <FontString name="Adventum_Line10" inherits="GameFontNormal" text="Completed: At War With The Scarlet Crusade">
             <Color a="1" r="0.6059" g="0.5706" b="0.4882" />
 	    <Anchors>
@@ -196,6 +197,7 @@
 	      </Anchor>
 	    </Anchors>
 	  </FontString>
+-->
 	</Layer>
       </Layers>
     </Frame>

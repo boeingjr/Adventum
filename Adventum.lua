@@ -123,7 +123,7 @@ end
 
 BAG_UPDATE_EVENT:SetScript("OnEvent",
   function(self, event)
-     tcd("Handler: BAG_UPDATE_EVENT")
+     tcb("Handler: BAG_UPDATE_EVENT")
      report()
   end
 )
@@ -138,6 +138,7 @@ local function clearLines()
    Adventum_Line7:SetText("")
    Adventum_Line8:SetText("")
    Adventum_Line9:SetText("")
+--[[
    Adventum_Line10:SetText("")
    Adventum_Line11:SetText("")
    Adventum_Line12:SetText("")
@@ -145,28 +146,31 @@ local function clearLines()
    Adventum_Line14:SetText("")
    Adventum_Line15:SetText("")
    Adventum_Line16:SetText("")
+]]--
 end
 
 report = function()
    tcd("At node " .. AdventumNode)
-   Adventum_Line16:SetText("At node " .. AdventumNode)
-   Adventum_Line16:SetTextColor(yellow.r, yellow.g, yellow.b, yellow.a)
+   Adventum_Line9:SetText("At node " .. AdventumNode)
+   Adventum_Line9:SetTextColor(yellow.r, yellow.g, yellow.b, yellow.a)
+--   Adventum_Line16:SetText("At node " .. AdventumNode)
+--   Adventum_Line16:SetTextColor(yellow.r, yellow.g, yellow.b, yellow.a)
    local currentNode = AdventumNodeTrail[AdventumNode]
    local doProgress = AdventumClassesReport(currentNode)
    if doProgress then
-      if currentNode.Loot then
+      if currentNode.actions.Loot then
+	 tcb("done with loot node, unregister BAG_UPDATE " .. currentNode.nxt)
 	 BAG_UPDATE_EVENT:UnregisterEvent("BAG_UPDATE")
       end
       if currentNode.nxt == "" then
+	 AdventumNode = currentNode.prv
 	 tcd("At end of node trail")
-	 clearLines()
-	 Adventum_Line1:SetText("At end of node trail after " .. AdventumNode)
-	 Adventum_Line1:SetTextColor(yellow.r, yellow.g, yellow.b, yellow.a)
        else
---	 tcd("Moving to node " .. currentNode.nxt)
 	 AdventumNode = currentNode.nxt
-	 if AdventumNodeTrail[AdventumNode].Loot then
-	     BAG_UPDATE_EVENT:RegisterEvent("BAG_UPDATE")
+--	 tcd("Moving to node " .. currentNode.nxt)
+	 if AdventumNodeTrail[AdventumNode].actions.Loot then
+	    tcb("at loot node, register BAG_UPDATE " .. currentNode.nxt)
+	    BAG_UPDATE_EVENT:RegisterEvent("BAG_UPDATE")
 	  end
 	 clearLines()
 	 report()
@@ -181,6 +185,10 @@ ADDON_LOADED_EVENT:SetScript("OnEvent",
        tcd("ADDON_LOADED for Adventum happened") 
        local _, classFilename, _ = UnitClass("player")
        AdventumPlayerClass = classFilename
+       AdventumName = "Adventum_Belf_1_12"
+       if AdventumMined == nil then
+	  AdventumMined = {}
+       end
        AdventumQuestDB = Adventum_Belf_1_12_QDB
 --       AdventumQuestDB = Adventum_Orc_1_12_QDB
 --       AdventumNodeTrail = Adventum_Orc_1_12_NodeTrail()
@@ -188,7 +196,7 @@ ADDON_LOADED_EVENT:SetScript("OnEvent",
 --       AdventumNodeTrail = Adventum_Undead_1_12_NodeTrail()
        questDB = AdventumQuestDB
        AdventumClassesSetLocals()
-       AdventumNodeTrail = Adventum_Belf_1_12()
+       AdventumNodeTrail = Adventum_Belf_1_6()
        AdventumIsInBag("fake thing", 3) -- TODO removeme
        tcb("saw a " .. AdventumPlayerClass)
        for id, data in pairs(questDB) do
@@ -238,7 +246,6 @@ QUEST_QUERY_COMPLETE_EVENT:SetScript("OnEvent",
    end
 )
 
-
 QUEST_LOG_UPDATE_EVENT:RegisterEvent("QUEST_LOG_UPDATE")
 QUEST_LOG_UPDATE_EVENT:SetScript("OnEvent",
   function(self, event)
@@ -277,49 +284,25 @@ CHAT_MSG_SYSTEM_EVENT:SetScript("OnEvent",
      -- this event is fired before the quest is removed from quest log, so quest log could still have the quest
      -- rely on QUEST_LOG_UPDATE_EVENT for actual reports
      -- and just set the quest to completed
-     tcd("Handler: CHAT_MSG_SYSTEM")
      local ending = " completed."
 
      if string.ends(msg, ending) then
-	tcd("Handler: CHAT_MSG_SYSTEM: QUEST COMPLETED I")
 	local questName = strsub(msg, 1, strlen(msg) - strlen(ending))
-	local qquestID
+	local questID
 	local results = {}
 	AdventumForEachLogQuest(
-	   function(_titleFromQuestLog, _isComplete, _questID)
-	      tcd("comparing global: '" ..  questName .. "' with '" .. _titleFromQuestLog .. "'")
+	   function(_titleFromQuestLog, _level, _isComplete, _questID, _logIndex)
 	      if questName == _titleFromQuestLog then
-		 qquestID = _questID
+		 questID = _questID
 	      end
 	   end
 	)
-	if qquestID then
-	   CompletedQuests[qquestID] = true
-	   tcb(questName .. " was found in log and has ID: " .. qquestID .. ", marking it as completed")
-	else
-	   tcb(questName .. " wasn't found in log, must find other source of questID if this is ever shown")
-	end
---[[
-
-
-
-	local logIndex = 1
-	local finalID
-	local titleFromQuestLog, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(logIndex)     
-	while titleFromQuestLog do
-	   if questName == titleFromQuestLog then
-	      finalID = questID
-	   end
-	   logIndex = logIndex + 1
-	   titleFromQuestLog, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(logIndex)     
-	end
-	if finalID then
+	if questID then
 	   CompletedQuests[questID] = true
 	   tcb(questName .. " was found in log and has ID: " .. questID .. ", marking it as completed")
 	else
 	   tcb(questName .. " wasn't found in log, must find other source of questID if this is ever shown")
 	end
-]]--
      end
   end
 )
@@ -329,11 +312,23 @@ QUEST_ACCEPTED_EVENT:SetScript("OnEvent",
   function(self, event, logIndex, questID)
     local titleFromQuestLog, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(logIndex)
     tcd("Accepted " .. titleFromQuestLog .. "(".. questID .. ")")
-    report()
+
+    if questDB[questID] and questDB.t == titleFromQuestLog then
+       report()
+    else
+       if questDB[questID] then
+	  tcb("Updating quest name " .. questDB[questID].t .. " in DB for " .. titleFromQuestLog .. " (".. questID ..")")
+	  table.insert(AdventumMined,"["..questID.."]={ q="..questID..", t=\""..titleFromQuestLog.."\", lvl="..level..", }")
+       else
+	  tcb("Updating for Unknown quest: " .. titleFromQuestLog .. " (" .. questID.. ")")
+	  table.insert(AdventumMined,"["..questID.."]={ q="..questID..", t=\""..titleFromQuestLog.."\", lvl="..level..", }")
+       end
+
+    end
+
   end
 )
   
-
 local noDump = {
    PLAYER_ALIVE = true,
    CINEMATIC_START = true,
@@ -379,7 +374,6 @@ local noDump = {
    ADDON_LOADED = true,
    VARIABLES_LOADED = true,
    CHAT_MSG_SYSTEM = true,   
-   CHAT_MSG_LOOT = true,
    UNIT_MANA = true,
    ACTIONBAR_UPDATE_COOLDOWN = true,
    SPELL_UPDATE_USABLE = true,
@@ -392,7 +386,6 @@ local noDump = {
    UNIT_HEALTH = true,
    ACTIONBAR_UPDATE_STATE = true,
    ACTIONBAR_SLOT_CHANGED = true,
-   BAG_UPDATE = true,
    UNIT_AURA = true,
    UNIT_STATS = true,
    UNIT_RESISTANCES = true,
