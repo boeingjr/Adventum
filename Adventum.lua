@@ -1,330 +1,192 @@
-AdventumGold = { r=0.83, g=0.69, b=0.95, a=1 }
-AdventumRed = { r=0.71, g=0.11, b=0.003, a=1 }
-AdventumGrey = { r=0.6059, g=0.5706, b=0.4882, a=1 }
-function AdventumToChatDebug(msg) DEFAULT_CHAT_FRAME:AddMessage(msg, 0.9, 0.7, 0.7) end
-function AdventumToChatBold(msg) DEFAULT_CHAT_FRAME:AddMessage(msg, 0.9, 0.3, 0.7) end
-function AdventumToChatGrey(msg) DEFAULT_CHAT_FRAME:AddMessage(msg, AdventumGrey.r, AdventumGrey.g, AdventumGrey.b) end
-function AdventumToChatRed(msg) DEFAULT_CHAT_FRAME:AddMessage(msg, AdventumRed.r, AdventumRed.g, AdventumRed.b) end
-function AdventumToChatGold(msg) DEFAULT_CHAT_FRAME:AddMessage(msg, AdventumGold.r, AdventumGold.g, AdventumGold.b) end
-AdventumActiveQuests = {}
-AdventumQuestDB = {}
-AdventumNodeTrail = {}
-local CompletedQuests
-
-local report
-local yellow = AdventumGold
-local red = AdventumRed
-local grey = AdventumGrey
-local activeQuest
-local activeIgnoreQuests
-local questDB
-local latestDing
-
-local ADDON_LOADED_EVENT = CreateFrame("Frame")
-local QUEST_LOG_UPDATE_EVENT = CreateFrame("Frame")
-local QUEST_WATCH_UPDATE_EVENT = CreateFrame("Frame")
-local PLAYER_LEVEL_UP_EVENT = CreateFrame("Frame")
-local BAG_UPDATE_EVENT = CreateFrame("Frame")
-local QUEST_TURNED_IN_EVENT = CreateFrame("Frame")
-local QUEST_ACCEPTED_EVENT = CreateFrame("Frame")
-local CHAT_MSG_SYSTEM_EVENT = CreateFrame("Frame") -- wrath baby
-local UNIT_QUEST_LOG_CHANGED_EVENT = CreateFrame("Frame") -- wrath baby
-
-BINDING_HEADER_ADVENTUM = "Adventum"
-
+function tcm(msg) DEFAULT_CHAT_FRAME:AddMessage(msg, 0.22, 0.69, 0.95) end
+function tcd(msg) DEFAULT_CHAT_FRAME:AddMessage(msg, 0.52, 0.69, 0.95) end
 function string.starts(String,Start)
    return string.sub(String,1,string.len(Start)) == Start
 end
 
-function string.ends(String,Start)
-   return string.sub(String,string.len(String) - string.len(Start),string.len(String)) == Start
+local function addEntry(entry)
+   tcm(entry)
+   AdventumGatherCount = AdventumGatherCount + 1
+   AdventumGather[AdventumGatherCount] = entry
 end
 
-local tcd = AdventumToChatDebug
-local tcb = AdventumToChatBold
-local tcg = AdventumToChatGrey
-local tcr = AdventumToChatRed
-local tcy = AdventumToChatGold
+SLASH_ADVENTUM1 = "/adventum"
+SLASH_ADVENTUM2 = "/adv"
+SlashCmdList["ADVENTUM"] = function(cmd)
+   local entry = "INSERTED: " .. cmd
+   addEntry(entry)
+end 
 
-local latestLooted
+local questMirror = {}
 
-function AdventumIsInBag(name, ...)
-   for bagID = 0, NUM_BAG_FRAMES do
-      local bagName = GetBagName(bagID)
-      for slot = 1, GetContainerNumSlots(bagID) do
-	 local itemLink = GetContainerItemLink(bagID, slot)
-	 if itemLink then
-	    local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemIcon, itemSellPrice, itemClassID, itemSubClassID, bindType, expacID, itemSetID, isCraftingReagent = GetItemInfo(itemLink)
-	    if itemStackCount then
-	       tcd("Found item: " .. itemName .. " count: " .. itemStackCount)
-	    else
-	       tcd("Found item: " .. itemName)
-	    end
-	    if itemName == name then
-	       tcb("Found requested item ".. itemName .. " in " .. bagName .. "[".. slot.."].")
-	       return true
+local ADDON_LOADED_EVENT = CreateFrame("Frame")
+ADDON_LOADED_EVENT:RegisterEvent("ADDON_LOADED")
+ADDON_LOADED_EVENT:SetScript("OnEvent",
+  function(self, event, name)
+    if name == "Adventum" then
+       tcm("Adventum loaded")
+       if AdventumGather == nil then
+	  AdventumGatherCount = 0
+	  AdventumGather = {}
+       end
+    end
+  end
+)
+
+local PLAYER_LEVEL_UP_EVENT = CreateFrame("Frame")
+PLAYER_LEVEL_UP_EVENT:RegisterEvent("PLAYER_LEVEL_UP")
+PLAYER_LEVEL_UP_EVENT:SetScript("OnEvent",
+  function(self, event, level)
+     addEntry("LEVEL: " .. level)
+  end
+)
+
+local function compareObjectives(questID, logIndex)
+   local objectiveID = 1
+   local objectiveDescription, objectiveType, objectiveComplete = GetQuestLogLeaderBoard(objectiveID, logIndex)
+   while objectiveID < 10 and objectiveDescription do
+      local oldObjective = questMirror[questID].objectives[objectiveID]
+      if oldObjective then
+	 tcd("   " .. objectiveDescription .. " " .. tostring(objectiveComplete) .. " vs " .. oldObjective.objectiveDescription .. " " .. tostring(oldObjective.objectiveComplete) )
+	 local objectiveCount = string.match(objectiveDescription, ": [0-9]+/[0-9]+")
+	 if objectiveCount ~= oldObjective.objectiveCount or objectiveComplete ~= oldObjective.objectiveComplete then
+	    local entry = "QLU OBJECTIVE: " .. objectiveDescription .. " " .. tostring(objectiveComplete)
+	    oldObjective.objectiveCount = objectiveCount
+	    oldObjective.objectiveDescription = objectiveDescription
+	    oldObjective.objectiveComplete = objectiveComplete
+	    addEntry(entry)
+	 end
+      else
+	 tcd(questID .. " [" .. questMirror[questID].title .. "]   no oldObjective to compare (" .. objectiveID .. ") " .. objectiveDescription .. " " .. objectiveType .. " " .. tostring(objectiveComplete))
+      end
+      objectiveID = objectiveID + 1
+      objectiveDescription, objectiveType, objectiveComplete = GetQuestLogLeaderBoard(objectiveID, logIndex)
+   end
+end
+
+local function fillObjectives(questID, logIndex)
+   local objectiveID = 1
+   local objectiveDescription, objectiveType, objectiveComplete = GetQuestLogLeaderBoard(objectiveID, logIndex)
+   while objectiveID < 10 and objectiveDescription do
+      if objectiveID == 1 then
+	 questMirror[questID].objectives = {}
+      end
+      local objectiveCount = string.match(objectiveDescription, ": [0-9]+/[0-9]+")
+      questMirror[questID].objectives[objectiveID] = { objectiveDescription=objectiveDescription, objectiveCount=objectiveCount, objectiveType=objectiveType, objectiveComplete=objectiveComplete }
+      tcd("   " .. objectiveDescription .. " " .. objectiveType .. " " .. tostring(objectiveComplete))
+      objectiveID = objectiveID + 1
+      objectiveDescription, objectiveType, objectiveComplete = GetQuestLogLeaderBoard(objectiveID, logIndex)
+   end
+end
+
+
+local function initQuestMirror()
+   questMirror = {}
+   local logIndex = 1
+   local title, level, suggestedGroup, isHeader, isCollapsed, isComplete, frequency, questID, startEvent, displayQuestID, isOnMap, hasLocalPOI, isTask, isStory = GetQuestLogTitle(logIndex)
+   while title do
+      if not isHeader then
+	 questMirror[questID] = { title = title, logIndex = logIndex, isComplete = isComplete }
+	 tcd("Init: " .. questID .. " [".. title .. "] " .. logIndex .. " " .. tostring(isComplete))
+	 fillObjectives(questID, logIndex)
+      end
+      logIndex = logIndex + 1
+      title, level, suggestedGroup, isHeader, isCollapsed, isComplete, frequency, questID, startEvent, displayQuestID, isOnMap, hasLocalPOI, isTask, isStory = GetQuestLogTitle(logIndex)
+   end
+end
+
+local function updateQuestMirror()
+   local logIndex = 1
+   local title, level, suggestedGroup, isHeader, isCollapsed, isComplete, frequency, questID, startEvent, displayQuestID, isOnMap, hasLocalPOI, isTask, isStory = GetQuestLogTitle(logIndex)
+   while title do
+      if not isHeader then
+	 if questMirror[questID] == nil then
+	    questMirror[questID] = { title = title, logIndex = logIndex, isComplete = isComplete }
+	    fillObjectives(questID, logIndex)
+	    local entry = "QLU NEW: " .. questID .. " [" .. title .. "]"
+	    addEntry(entry)
+	 else
+	    tcd("Compare: " .. questID .. " [" .. title .. "]: " .. tostring(isComplete) .. " vs " .. tostring(questMirror[questID].isComplete))
+	    compareObjectives(questID, logIndex)
+	    if questMirror[questID].isComplete ~= isComplete then
+	       tcb("QLU COMPLETED " .. questID .. " [" .. title .. "]")
+	       questMirror[questID].isComplete = isComplete
 	    end
 	 end
       end
-   end
-   return false
-end
-
-function AdventumPlayerLevel()
-   if latestDing then
-      return latestDing
-   else
-      return UnitLevel("player")
-   end
-end
-
-local function setToDone(qID)
-   local logIndex = 1
-   local titleFromQuestLog, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(logIndex)   
-   while titleFromQuestLog do
-      if qID == questID then
-	 SelectQuestLogEntry(logIndex)
-	 AbandonQuest()
-	 tcb("Abandoned " .. questDB[questID].t)
-      end
       logIndex = logIndex + 1
-      titleFromQuestLog, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(logIndex)
-   end
-   AdventumIgnoreQuests[qID] = 1
-   tcb("Tagging as Done: " .. questDB[qID].t)
-end
-
-function Adventum_SkipForward()
-   tcb("TODO: Skipping by tagging quests as done")
-   local currentNode = AdventumNodeTrail[AdventumNode]
-   tcb("Skip node " .. tostring(currentNode))
-   if currentNode.actions.Accept then
-      tcb("accept node")
-      for i, v in ipairs(currentNode.actions.Accept) do
-	 setToDone(v)
-      end
-   end
-   if currentNode.actions.Complete then
-      tcb("complete node")
-      for i, v in ipairs(currentNode.actions.Complete) do
-	 setToDone(v)
-      end
-   end
-   if currentNode.actions.Deliver then
-      tcb("deliver node")
-      for i, v in ipairs(currentNode.actions.Deliver) do
-	 setToDone(v)
-      end
-   end
-   report()
-end
-
-function Adventum_Toggle()
-   if AdventumCanvas:IsShown() then
-      AdventumCanvas:Hide()
-   else
-      AdventumCanvas:Show()
+      title, level, suggestedGroup, isHeader, isCollapsed, isComplete, frequency, questID, startEvent, displayQuestID, isOnMap, hasLocalPOI, isTask, isStory = GetQuestLogTitle(logIndex)
    end
 end
 
-function Adventum_Backup()
-   AdventumBackup = AdventumIgnoreQuests
-end
-
-function Adventum_Restore()
-   AdventumIgnoreQuests = AdventumBackup
-end
-
-SLASH_TEST1 = "/adventum"
-SLASH_TEST2 = "/avt"
-SlashCmdList["TEST"] = function(msg)
-   tcd("Adventum help TODO")
-end 
-
-BAG_UPDATE_EVENT:SetScript("OnEvent",
-  function(self, event)
-     tcd("Handler: BAG_UPDATE_EVENT")
-     report()
-  end
-)
-
-local function clearLines()
-   Adventum_Line1:SetText("")
-   Adventum_Line2:SetText("")
-   Adventum_Line3:SetText("")
-   Adventum_Line4:SetText("")
-   Adventum_Line5:SetText("")
-   Adventum_Line6:SetText("")
-   Adventum_Line7:SetText("")
-   Adventum_Line8:SetText("")
-   Adventum_Line9:SetText("")
-   Adventum_Line10:SetText("")
-   Adventum_Line11:SetText("")
-   Adventum_Line12:SetText("")
-   Adventum_Line13:SetText("")
-   Adventum_Line14:SetText("")
-   Adventum_Line15:SetText("")
-   Adventum_Line16:SetText("")
-end
-
-report = function()
-   tcd("At node " .. AdventumNode)
-   Adventum_Line16:SetText("At node " .. AdventumNode)
-   Adventum_Line16:SetTextColor(yellow.r, yellow.g, yellow.b, yellow.a)
-   local currentNode = AdventumNodeTrail[AdventumNode]
-   local doProgress = AdventumClassesReport(currentNode)
-   if doProgress then
-      if currentNode.Loot then
-	 BAG_UPDATE_EVENT:UnregisterEvent("BAG_UPDATE")
-      end
-      if currentNode.nxt == "" then
-	 tcd("At end of node trail")
-	 clearLines()
-	 Adventum_Line1:SetText("At end of node trail after " .. AdventumNode)
-	 Adventum_Line1:SetTextColor(yellow.r, yellow.g, yellow.b, yellow.a)
-       else
-	 tcd("Moving to node " .. currentNode.nxt)
-	 AdventumNode = currentNode.nxt
-	 if AdventumNodeTrail[AdventumNode].Loot then
-	     BAG_UPDATE_EVENT:RegisterEvent("BAG_UPDATE")
-	  end
-	 clearLines()
-	 report()
-      end
-   end
-end
-
-ADDON_LOADED_EVENT:RegisterEvent("ADDON_LOADED")
-ADDON_LOADED_EVENT:SetScript("OnEvent",
-  function()
-    if arg1 == "Adventum" then
-       tcd("ADDON_LOADED for Adventum happened") 
-       local _, classFilename, _ = UnitClass("player")
-       AdventumPlayerClass = classFilename
-       AdventumQuestDB = Adventum_Belf_1_12_QDB
---       AdventumQuestDB = Adventum_Orc_1_12_QDB
---       AdventumNodeTrail = Adventum_Orc_1_12_NodeTrail()
---       AdventumQuestDB = Adventum_Undead_1_12_QDB
---       AdventumNodeTrail = Adventum_Undead_1_12_NodeTrail()
-       questDB = AdventumQuestDB
-       AdventumClassesSetLocals()
-       AdventumNodeTrail = Adventum_Belf_1_12()
-       AdventumIsInBag("fake thing", 3) -- TODO removeme
-       tcb("saw a " .. AdventumPlayerClass)
-       for id, data in pairs(questDB) do
-	  if data.n then
-	     local boddeh = questDB[data.n]
-	     if boddeh then
-		questDB[data.n].p = id
-	     end
-	  end
-       end
-       if AdventumIgnoreQuests == nil then
-	  AdventumIgnoreQuests = {}
-       end
-       clearLines()
-       AdventumNode = "first"
-
-	local logIndex = 1
-	local titleFromQuestLog, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(logIndex)
-	while titleFromQuestLog do
-	   if not isHeader then
-	      tcd("Got " .. titleFromQuestLog .. " (".. questID ..")")
-	   end
-	   logIndex = logIndex + 1
-	   titleFromQuestLog, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(logIndex)
-	end
-    end
-  end
-)
-
--- TODO: remove this method for Classic, wrath API specific, Classic offers this as a global function
-function IsQuestFlaggedCompleted(questID)
---   tcd("Checking if quest flagged as completed: " .. questDB[questID].t)
-   return CompletedQuests[questID]
-end
-
--- TODO: remove this for Classic, wrath specific, Classic can call IsIsQuestFlaggedCompleted directly
-local wrathInitialized
-local wrathQueried
-local QUEST_QUERY_COMPLETE_EVENT = CreateFrame("Frame")
-QUEST_QUERY_COMPLETE_EVENT:RegisterEvent("QUEST_QUERY_COMPLETE")
-QUEST_QUERY_COMPLETE_EVENT:SetScript("OnEvent",
-   function()
-      tcd("Handler: QUEST_QUERY_COMPLETE_EVENT")
-      CompletedQuests = GetQuestsCompleted()
-      report()
-   end
-)
-
-local latestWatchUpdate
-
+local QUEST_LOG_UPDATE_EVENT = CreateFrame("Frame")
 QUEST_LOG_UPDATE_EVENT:RegisterEvent("QUEST_LOG_UPDATE")
 QUEST_LOG_UPDATE_EVENT:SetScript("OnEvent",
-  function(self, event)
-    tcd("Handler: QUEST_LOG_UPDATE_EVENT")
-    QUEST_LOG_UPDATE_EVENT:UnregisterEvent("QUEST_LOG_UPDATE")
-    if latestWatchUpdate then
-      local titleFromQuestLog, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(latestWatchUpdate)
-      latestWatchUpdate = nil
-      tcd("UPDATE: update on quest " .. titleFromQuestLog)
-      report()
-    else
-       tcd("UPDATE: initialization")
-       QueryQuestsCompleted() -- TODO: remove for Classic, this was wrath API
-       -- do whatever needs to be done initially
-       -- TODO: call report() here when Classic, for wrath, call report in QUEST_QUERY_COMPLETE_EVENT handler
-    end
+  function()
+     initQuestMirror()
+     QUEST_LOG_UPDATE_EVENT:SetScript("OnEvent",
+       function(self, event, name)
+	  updateQuestMirror()
+       end
+     )
   end
 )
-    
-QUEST_WATCH_UPDATE_EVENT:RegisterEvent("QUEST_WATCH_UPDATE")
-QUEST_WATCH_UPDATE_EVENT:SetScript("OnEvent", 
-    function(self, event, logIndex)
-      tcd("Handler: QUEST_LOG_WATCH_EVENT " .. logIndex)
-      local titleFromQuestLog, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(logIndex)
-      tcd("WATCH: watch on quest " .. titleFromQuestLog)
-      latestWatchUpdate = logIndex
-      QUEST_LOG_UPDATE_EVENT:RegisterEvent("QUEST_LOG_UPDATE")
-      report()
-    end
-)
 
--- TODO: this event will fire in Classic
+local removedQuests = {}
+
+local QUEST_TURNED_IN_EVENT = CreateFrame("Frame")
 QUEST_TURNED_IN_EVENT:RegisterEvent("QUEST_TURNED_IN")
 QUEST_TURNED_IN_EVENT:SetScript("OnEvent",
-  function(self, event, questID, xpReward, moneyReward)
-     if questID then
-	tcd("turned in quest " .. questDB[questID])
-     else
-	tcd("turned in quest")
-     end
-     report()
-  end
-)
-  
-local completesQuest
-
--- wrath API doesn't have a QUEST_COMPLETED, assume we always get a chat message indicating completion
-CHAT_MSG_SYSTEM_EVENT:RegisterEvent("CHAT_MSG_SYSTEM")
-CHAT_MSG_SYSTEM_EVENT:SetScript("OnEvent",
-  function(self, event, questID, xpReward, moneyReward)
-      tcd("Handler: CHAT_MSG_SYSTEM")
-      QueryQuestsCompleted() -- TODO: remove for Classic, this was wrath API
-     -- this event is fired whenever a quest dialog is closed
-     -- this could be a good time to check if we've completed more quests
+   function(self, event, questID, xpReward, moneyReward)
+      local entry = ""
+      if questMirror[questID] then
+	 entry = "QUEST_TURNED_IN: " .. questID .. " [" .. questMirror[questID].title .. "]"
+	 questMirror[questID] = nil
+      else
+	 entry = "QUEST_TURNED_IN: " .. questID .. " [" .. removedQuests[questID] .. "]"
+      end
+      addEntry(entry)
   end
 )
 
+
+local QUEST_REMOVED_EVENT = CreateFrame("Frame")
+QUEST_REMOVED_EVENT:RegisterEvent("QUEST_REMOVED")
+QUEST_REMOVED_EVENT:SetScript("OnEvent",
+   function(self, event, questID, xpReward, moneyReward)
+      if questMirror[questID] then
+	 local entry = "QUEST_REMOVED: " .. questID .. " [" .. questMirror[questID].title .. "]"
+	 addEntry(entry)
+	 removedQuests[questID] = questMirror[questID].title
+	 questMirror[questID] = nil
+      end
+  end
+)
+
+
+local QUEST_ACCEPTED_EVENT = CreateFrame("Frame")
 QUEST_ACCEPTED_EVENT:RegisterEvent("QUEST_ACCEPTED")
 QUEST_ACCEPTED_EVENT:SetScript("OnEvent",
-  function(self, event, logIndex, questID)
-    local titleFromQuestLog, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(logIndex)
-    tcd("Accepted " .. titleFromQuestLog .. "(".. questID .. ")")
-    report()
+   function(self, event, logIndex, questID)
+      local title, level, suggestedGroup, isHeader, isCollapsed, isComplete, frequency, questIDFromLog, startEvent, displayQuestID, isOnMap, hasLocalPOI, isTask, isStory = GetQuestLogTitle(logIndex)
+      local entry = "QUEST_ACCEPTED: " .. questID .. " [" .. title .. "] " .. questIDFromLog
+--      tcd(entry)
   end
 )
-  
+
+local QUEST_WATCH_UPDATE_EVENT = CreateFrame("Frame")
+QUEST_WATCH_UPDATE_EVENT:RegisterEvent("QUEST_WATCH_UPDATE")
+QUEST_WATCH_UPDATE_EVENT:SetScript("OnEvent",
+   function(self, event, logIndex)
+      local title, level, suggestedGroup, isHeader, isCollapsed, isComplete, frequency, questID, startEvent, displayQuestID, isOnMap, hasLocalPOI, isTask, isStory = GetQuestLogTitle(logIndex)
+      local entry = "QUEST_WATCH_UPDATE: " .. questID .. " [".. title .. "]"
+--      tcd(entry)
+  end
+)
+
+-- in this section, we just dump the various events while debuggging
+-- comment out registering the event if you don't want this dump, as it is quite spammy.
+-- you can also silence events you know you don't want by adding them in the noDump array with entry set to true
 
 local noDump = {
    PLAYER_ALIVE = true,
@@ -336,6 +198,8 @@ local noDump = {
    FRIENDLIST_UPDATE = true,
    UNIT_RANGED_ATTACK_POWER = true,
    CHAT_MSG_CHANNEL = true,
+   CHAT_MSG_ADDON = true,
+   CHAT_MSG_GUILD = true,
    CHAT_MSG_CHANNEL_NOTICE = true,
    CHAT_MSG_SKILL = true,
    PARTY_INVITE_QUEST = true,
@@ -347,6 +211,7 @@ local noDump = {
    UNIT_PORTRAIT_UPDATE = true,
    UNIT_MODEL_CHANGED = true,
    UPDATE_CHAT_WINDOWS = true,
+   UPDATE_INVENTORY_DURABILITY = true,
    UPDATE_WORLD_STATES = true,
    UPDATE_BONUS_ACTIONBAR = true,
    MEETINGSTONE_CHANGED = true,
@@ -358,11 +223,12 @@ local noDump = {
    UPDATE_TICKET = true,
    CURSOR_UPDATE = true,
    UPDATE_BINDINGS = true,
-   PLAYER_AURAS_CHANGED = true,
-   PLAYER_GUILD_UPDATE = true,
-   PLAYER_ENTERING_WORLD = true,
+   LOADING_SCREEN_DISABLED = true,
+--   PLAYER_AURAS_CHANGED = true,
+--   PLAYER_GUILD_UPDATE = true,
+--   PLAYER_ENTERING_WORLD = true,
    PLAYER_UNGHOST = true,
-   PLAYER_LOGIN = true,
+--   PLAYER_LOGIN = true,
    LANGUAGE_LIST_CHANGED = true,
    UNIT_PET = true,
    PET_BAR_UPDATE = true,
@@ -371,7 +237,6 @@ local noDump = {
    ADDON_LOADED = true,
    VARIABLES_LOADED = true,
    CHAT_MSG_SYSTEM = true,   
-   CHAT_MSG_LOOT = true,
    UNIT_MANA = true,
    ACTIONBAR_UPDATE_COOLDOWN = true,
    SPELL_UPDATE_USABLE = true,
@@ -384,7 +249,6 @@ local noDump = {
    UNIT_HEALTH = true,
    ACTIONBAR_UPDATE_STATE = true,
    ACTIONBAR_SLOT_CHANGED = true,
-   BAG_UPDATE = true,
    UNIT_AURA = true,
    UNIT_STATS = true,
    UNIT_RESISTANCES = true,
@@ -401,8 +265,8 @@ local noDump = {
    ITEM_LOCK_CHANGED = true,
    UNIT_DYNAMIC_FLAGS = true,
    LOOT_CLOSED = true,
-   QUEST_WATCH_UPDATE = true,
-   QUEST_LOG_UPDATE = true,
+--   QUEST_WATCH_UPDATE = true,
+--   QUEST_LOG_UPDATE = true,
    UPDATE_INVENTORY_ALERTS = true,
    LOOT_OPENED = true,
    PLAYER_MONEY = true,
@@ -414,17 +278,21 @@ local noDump = {
    PLAYER_ENTER_COMBAT = true,
    PLAYER_REGEN_ENABLED = true,
    PLAYER_REGEN_DISABLED = true,
+   PLAYER_STARTED_MOVING = true,
+   PLAYER_STOPPED_MOVING = true,
    UI_ERROR_MESSAGE = true,
    UNIT_INVENTORY_CHANGED = true,
+   UNIT_HEALTH_FREQUENT = true,
+   UNIT_POWER_FREQUENT = true,
+   UNIT_POWER_UPDATE = true,
    SPELLCAST_FAILED = true,
    ACTIONBAR_SHOWGRID = true,
+   ITEM_DATA_LOAD_RESULT = true,
    ACTIONBAR_HIDEGRID = true,
-   GOSSIP_SHOW = true,
-   GOSSIP_CLOSE = true,
    TRAINER_UPDATE = true,
-   TRAINER_SHOW = true,
-   TRAINER_HIDE = true,
+   MODIFIER_STATE_CHANGED = true,
    UNIT_MAXMANA = true,
+   UNIT_TARGET = true,
    UNIT_DAMAGE = true,
    UNIT_RANGED_DAMAGE = true,
    UNIT_ATTACK_POWER = true,
@@ -432,22 +300,26 @@ local noDump = {
    LEARNED_SPELL_IN_TAB = true,
    SPELLCAST_INTERRUPTED = true,
    UNIT_ENERGY = true,
+   GUILD_ROSTER_UPDATE = true,
+   GUILD_RANKS_UPDATE = true,
+   PORTRAITS_UPDATED = true,
+   STORE_PURCHASE_LIST_UPDATED = true,
+   UI_SCALE_CHANGED = true,
+   UPDATE_FACTION = true,
+   SPELL_DATA_LOAD_RESULT = true,
+   SPELL_TEXT_UPDATE = true,
+   CHANNEL_UI_UPDATE = true,
+   UPDATE_FLOATING_CHAT_WINDOWS = true,
+   COMPACT_UNIT_FRAME_PROFILES_LOADED = true,
+   INITIAL_CLUBS_LOADED = true,
 }
-
-PLAYER_LEVEL_UP_EVENT:RegisterEvent("PLAYER_LEVEL_UP")
-PLAYER_LEVEL_UP_EVENT:SetScript("OnEvent",
-  function()
-     tcd("Handler: PLAYER_LEVEL_UP_EVENT " .. arg1)
-     latestDing = arg1
-     report()
-  end
-)
 
 local ALL_EVENT = CreateFrame("Frame")
 --ALL_EVENT:RegisterAllEvents()
 ALL_EVENT:SetScript("OnEvent", 
-   function()
+   function(self, event, ...)
       local dump = "event happened: " .. event
+      local arg1, arg2, arg3, arg4, arg5, arg6 = ...
       if arg1 then
 	 dump = dump .. " " .. tostring(arg1)
       end
@@ -469,20 +341,34 @@ ALL_EVENT:SetScript("OnEvent",
       if noDump[event] then
 	 -- do nothing
 	 dump = nil
-      elseif string.starts(event, "CHAT_MSG_COMBAT") then
+      elseif string.starts(event, "CHAT_MSG_") then
+--      if string.starts(event, "CHAT_MSG_") then
+	 -- do nothing
+	 dump = nil
+      elseif string.starts(event, "VOICE_CHAT_") then
+	 -- do nothing
+	 dump = nil
+      elseif string.starts(event, "BN_") then
+	 -- do nothing
+	 dump = nil
+      elseif string.starts(event, "CURSOR_UPDATE") then
+	 -- do nothing
+	 dump = nil
+      elseif string.starts(event, "MODIFIER_STATE_CHANGED") then
 	 -- do nothing
 	 dump = nil
       elseif string.starts(event, "COMBAT_LOG") then
 	 -- do nothing
 	 dump = nil
+      elseif string.starts(event, "UPDATE_CHAT_COLOR") then
+	 -- do nothing
+	 dump = nil
       elseif string.starts(event, "PET_") then
 	 -- do nothing
 	 dump = nil
-      elseif string.starts(event, "CHAT_MSG_SPELL") then
-	 -- do nothing
-	 dump = nil
       else
-	 tcd(dump)
+	 DEFAULT_CHAT_FRAME:AddMessage(dump, 0.22, 0.22, 0.22)
       end
   end
 )
+
