@@ -87,3 +87,89 @@ their FP thing, talk to Jonathan, run to Goldshire, turn in Hogger,
 Price of Shoes, pick up Elmore's task, buy quest beer, HS to Redridge,
 turn in what you have, don't pick up anything but Messenger to
 Westfall.  Fly to SH.
+
+
+
+
+	Be level 12 (do we need more?)
+	"QLU NEW: 224 [In Defense of the King's Lands]", -- [373]
+	"QLU NEW: 267 [The Trogg Threat]", -- [374]
+	Get FP, Set HS
+	"QLU NEW: 416 [Rat Catching]", -- [377]
+	"QLU NEW: 1339 [Mountaineer Stormpike's Task]", -- [378]
+	"QLU NEW: 418 [Thelsamar Blood Sausages]", -- [380]
+	Start doing 224, 267, 416, 418 while moving to
+	"QUEST_TURNED_IN: 1339 [Mountaineer Stormpike's Task]", -- [398]
+	"QLU NEW: 307 [Filthy Paws]", -- [400]
+	Sell stuff
+	Keep doing 224, 267, 416, 418 while moving to do
+	Complete 307
+	Keep doing 224, 267, 416, 418 while moving to do
+	"QUEST_TURNED_IN: 307 [Filthy Paws]", -- [411]
+	"QLU NEW: 1338 [Stormpike's Order]", -- [399]
+	Sell stuff
+	Complete 416, 418, 224, 267 while moving to do
+	"QUEST_TURNED_IN: 418 [Thelsamar Blood Sausages]", -- [417]
+	"QUEST_TURNED_IN: 416 [Rat Catching]", -- [418]
+	"QLU NEW: 436 [Ironband's Excavation]", -- [379]
+	"QUEST_TURNED_IN: 436 [Ironband's Excavation]", -- [463]
+	"QLU NEW: 298 [Excavation Progress Report]", -- [464]
+	Use HS
+	Sell stuff
+	"QUEST_TURNED_IN: 298 [Excavation Progress Report]", -- [466]
+	"QLU NEW: 301 [Report to Ironforge]", -- [467]
+	"QUEST_TURNED_IN: 224 [In Defense of the King's Lands]", -- [438]
+	"QLU NEW: 237 [In Defense of the King's Lands]", -- [439]
+	"QUEST_TURNED_IN: 267 [The Trogg Threat]", -- [440]
+	Do 237
+	"QUEST_TURNED_IN: 237 [In Defense of the King's Lands]", -- [461]
+	"QLU NEW: 263 [In Defense of the King's Lands]", -- [902]
+	Go to Ironforge.  If nelf, run and get FP, otherwise, Thelsamar then fly
+	"QUEST_TURNED_IN: 301 [Report to Ironforge]", -- [468]
+	"QLU NEW: 6661 [Deeprun Rat Roundup]", -- [354]
+	"QUEST_TURNED_IN: 6661 [Deeprun Rat Roundup]", -- [360]
+	"QLU NEW: 6662 [Me Brother, Nipsy]", -- [361]
+	Take tram
+	"QUEST_TURNED_IN: 6662 [Me Brother, Nipsy]", -- [362]
+	"QUEST_TURNED_IN: 1338 [Stormpike's Order]", -- [364]
+	"QLU NEW: 399 [Humble Beginnings]", -- [365]
+	Get SW FP
+	"QLU NEW: 176 [Wanted:  \"Hogger\"]", -- [367]
+	Do 176
+	"QLU NEW: 64 [The Forgotten Heirloom]", -- [370]
+	"QLU NEW: 109 [Report to Gryan Stoutmantle]", -- [371]
+	"QLU NEW: 36 [Westfall Stew]", -- [372]
+	"QLU NEW: 151 [Poor Old Blanchy]", -- [373]
+	Start doing 151, Get 3x[Murloc Eye], if opportunity do 64, kill boars and birds while moving to
+	"QLU NEW: 9 [The Killing Fields]", -- [377]
+	"QUEST_TURNED_IN: 36 [Westfall Stew]", -- [378]
+	"QLU NEW: 22 [Goretusk Liver Pie]", -- [379]
+	"QLU NEW: 38 [Westfall Stew]", -- [380]
+	Sell stuff
+	Keep doing 151, 38, 22, while moving to
+	"QUEST_TURNED_IN: 109 [Report to Gryan Stoutmantle]", -- [386]
+	"QLU NEW: 12 [The People's Militia]", -- [387]
+	"QLU NEW: 102 [Patrolling Westfall]", -- [389]
+	"QLU NEW: 153 [Red Leather Bandanas]", -- [390]
+	Do and keep doing 12, 22, 38, 151, 102, 153 while moving to do
+	"QLU OBJECTIVE 64: Furlbrow's Pocket Watch: 1/1 true", -- [375]
+	Complete 151 and keep doing 12, 22, 38, 102, 153 while moving to do
+	"QUEST_TURNED_IN: 151 [Poor Old Blanchy]", -- [443]
+	"QUEST_TURNED_IN: 64 [The Forgotten Heirloom]", -- [444]
+	Complete 38, 22 and keep doing 12, 102, 153 while moving to do
+	"QUEST_TURNED_IN: 38 [Westfall Stew]", -- [385]
+	"QUEST_TURNED_IN: 22 [Goretusk Liver Pie]", -- [476]
+	Complete 12, 102, 153 while moving to do
+	"QUEST_TURNED_IN: 102 [Patrolling Westfall]", -- [518]
+	"QUEST_TURNED_IN: 13 [The People's Militia]", -- [516]
+	"QLU NEW: 14 [The People's Militia]", -- [517]
+	"QLU NEW: 65 [The Defias Brotherhood]", -- [475]
+	Run to Redridge
+	"QLU NEW: 244 [Encroaching Gnolls]", -- [519]
+	"QUEST_TURNED_IN: 244 [Encroaching Gnolls]", -- [520]
+	
+
+
+	
+	
+	
