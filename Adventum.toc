@@ -10,5 +10,7 @@ Adventum.xml
 Classes.lua
 #Undead_1_12.lua
 #Orc_1_12.lua
+#QDB\Tauren_1_12_QDB.lua
 Belf_1_12.lua
+#Tauren_1_12.lua
 Adventum.lua

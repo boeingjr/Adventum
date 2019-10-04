@@ -35,11 +35,11 @@ function AdventumIsInBag(name, ...)
 	 local itemLink = GetContainerItemLink(bagID, slot)
 	 if itemLink then
 	    local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemIcon, itemSellPrice, itemClassID, itemSubClassID, bindType, expacID, itemSetID, isCraftingReagent = GetItemInfo(itemLink)
-	    if itemStackCount then
-	       tcd("Found item: " .. itemName .. " count: " .. itemStackCount)
-	    else
-	       tcd("Found item: " .. itemName)
-	    end
+--	    if itemStackCount then
+--	       tcd("Found item: " .. itemName .. " count: " .. itemStackCount)
+--	    else
+--	       tcd("Found item: " .. itemName)
+--	    end
 	    if itemName == name then
 	       tcb("Found requested item ".. itemName .. " in " .. bagName .. "[".. slot.."].")
 	       return true
@@ -123,7 +123,7 @@ end
 
 BAG_UPDATE_EVENT:SetScript("OnEvent",
   function(self, event)
-     tcb("Handler: BAG_UPDATE_EVENT")
+--     tcb("Handler: BAG_UPDATE_EVENT")
      report()
   end
 )
@@ -150,7 +150,7 @@ local function clearLines()
 end
 
 report = function()
-   tcd("At node " .. AdventumNode)
+--   tcd("At node " .. AdventumNode)
    Adventum_Line9:SetText("At node " .. AdventumNode)
    Adventum_Line9:SetTextColor(yellow.r, yellow.g, yellow.b, yellow.a)
 --   Adventum_Line16:SetText("At node " .. AdventumNode)
@@ -159,7 +159,7 @@ report = function()
    local doProgress = AdventumClassesReport(currentNode)
    if doProgress then
       if currentNode.actions.Loot then
-	 tcb("done with loot node, unregister BAG_UPDATE " .. currentNode.nxt)
+--	 tcb("done with loot node, unregister BAG_UPDATE " .. currentNode.nxt)
 	 BAG_UPDATE_EVENT:UnregisterEvent("BAG_UPDATE")
       end
       if currentNode.nxt == "" then
@@ -167,9 +167,9 @@ report = function()
 	 tcd("At end of node trail")
        else
 	 AdventumNode = currentNode.nxt
---	 tcd("Moving to node " .. currentNode.nxt)
+	 tcd("Moving to node " .. currentNode.nxt)
 	 if AdventumNodeTrail[AdventumNode].actions.Loot then
-	    tcb("at loot node, register BAG_UPDATE " .. currentNode.nxt)
+--	    tcb("at loot node, register BAG_UPDATE " .. currentNode.nxt)
 	    BAG_UPDATE_EVENT:RegisterEvent("BAG_UPDATE")
 	  end
 	 clearLines()
@@ -185,10 +185,11 @@ ADDON_LOADED_EVENT:SetScript("OnEvent",
        tcd("ADDON_LOADED for Adventum happened") 
        local _, classFilename, _ = UnitClass("player")
        AdventumPlayerClass = classFilename
-       AdventumName = "Adventum_Belf_1_12"
+       AdventumName = "Data Collection"
        if AdventumMined == nil then
 	  AdventumMined = {}
        end
+--       AdventumQuestDB = Adventum_Tauren_1_12_QDB
        AdventumQuestDB = Adventum_Belf_1_12_QDB
 --       AdventumQuestDB = Adventum_Orc_1_12_QDB
 --       AdventumNodeTrail = Adventum_Orc_1_12_NodeTrail()
@@ -196,9 +197,11 @@ ADDON_LOADED_EVENT:SetScript("OnEvent",
 --       AdventumNodeTrail = Adventum_Undead_1_12_NodeTrail()
        questDB = AdventumQuestDB
        AdventumClassesSetLocals()
+--       AdventumNodeTrail = Adventum_Tauren_6_12()
+--       AdventumNodeTrail = Adventum_Tauren_1_6()
        AdventumNodeTrail = Adventum_Belf_1_6()
-       AdventumIsInBag("fake thing", 3) -- TODO removeme
-       tcb("saw a " .. AdventumPlayerClass)
+--       AdventumIsInBag("fake thing", 3) -- TODO removeme
+--       tcb("saw a " .. AdventumPlayerClass)
        for id, data in pairs(questDB) do
 	  if data.n then
 	     local boddeh = questDB[data.n]
@@ -239,7 +242,7 @@ local QUEST_QUERY_COMPLETE_EVENT = CreateFrame("Frame")
 QUEST_QUERY_COMPLETE_EVENT:RegisterEvent("QUEST_QUERY_COMPLETE")
 QUEST_QUERY_COMPLETE_EVENT:SetScript("OnEvent",
    function()
-      tcb("Handler: QUEST_QUERY_COMPLETE_EVENT")
+--      tcb("Handler: QUEST_QUERY_COMPLETE_EVENT")
       CompletedQuests = GetQuestsCompleted()
       wrathQueried = true
       report()
@@ -254,7 +257,7 @@ QUEST_LOG_UPDATE_EVENT:SetScript("OnEvent",
       report()
     elseif not wrathInitialized then
        wrathInitialized = true
-       tcd("UPDATE: initialization")
+--       tcd("UPDATE: initialization")
        QueryQuestsCompleted() -- TODO: remove for Classic, this was wrath API
        -- do whatever needs to be done initially
        -- TODO: call report() here when Classic, for wrath, call report in QUEST_QUERY_COMPLETE_EVENT handler
@@ -311,21 +314,18 @@ QUEST_ACCEPTED_EVENT:RegisterEvent("QUEST_ACCEPTED")
 QUEST_ACCEPTED_EVENT:SetScript("OnEvent",
   function(self, event, logIndex, questID)
     local titleFromQuestLog, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(logIndex)
-    tcd("Accepted " .. titleFromQuestLog .. "(".. questID .. ")")
-
-    if questDB[questID] and questDB.t == titleFromQuestLog then
+    tcd("Accepted " .. titleFromQuestLog .. " (".. questID .. ")")
+    if questDB[questID] and questDB[questID].t == titleFromQuestLog then
        report()
     else
+       local raceName, raceFile, raceID = UnitRace("player")
        if questDB[questID] then
-	  tcb("Updating quest name " .. questDB[questID].t .. " in DB for " .. titleFromQuestLog .. " (".. questID ..")")
-	  table.insert(AdventumMined,"["..questID.."]={ q="..questID..", t=\""..titleFromQuestLog.."\", lvl="..level..", }")
+	  tcb("Updating quest name '" .. questDB[questID].t .. "' in DB for '" .. titleFromQuestLog .. "' (".. questID ..")")
        else
-	  tcb("Updating for Unknown quest: " .. titleFromQuestLog .. " (" .. questID.. ")")
-	  table.insert(AdventumMined,"["..questID.."]={ q="..questID..", t=\""..titleFromQuestLog.."\", lvl="..level..", }")
+	  tcb("Updating for Unknown quest: '" .. titleFromQuestLog .. "' (" .. questID.. ")")
        end
-
+       table.insert(AdventumMined,'['..questID..']={ q='..questID..', t="'..titleFromQuestLog..'", lvl='..level..', minerclass="'.. AdventumPlayerClass ..'", minerrace="'.. raceFile ..'",},')
     end
-
   end
 )
   
@@ -339,6 +339,8 @@ local noDump = {
    FRIENDLIST_UPDATE = true,
    UNIT_RANGED_ATTACK_POWER = true,
    CHAT_MSG_CHANNEL = true,
+   CHAT_MSG_ADDON = true,
+   CHAT_MSG_GUILD = true,
    CHAT_MSG_CHANNEL_NOTICE = true,
    CHAT_MSG_SKILL = true,
    PARTY_INVITE_QUEST = true,
@@ -438,7 +440,7 @@ local noDump = {
 PLAYER_LEVEL_UP_EVENT:RegisterEvent("PLAYER_LEVEL_UP")
 PLAYER_LEVEL_UP_EVENT:SetScript("OnEvent",
   function()
-     tcd("Handler: PLAYER_LEVEL_UP_EVENT " .. arg1)
+--     tcd("Handler: PLAYER_LEVEL_UP_EVENT " .. arg1)
      latestDing = arg1
      report()
   end

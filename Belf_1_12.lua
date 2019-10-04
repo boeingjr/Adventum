@@ -75,8 +75,8 @@ Adventum_Belf_1_12_QDB={
    [8472]={ q=8472, t="Major Malfunction", l=0, r=0,}, 
    [8468]={ q=8468, t="Wanted: Thaelis the Hungerer", l=0, r=0,}, 
    [8463]={ q=8463, t="Unstable Mana Crystals", l=0, r=0,},
-   [9352]={ q=9352, t="heydiho", l=0, r=0,}, 
-   [8895]={ q=8895, t="hahahah", l=0, r=0,},
-   [9119]={ q=9119, t="fletto", l=0, r=0,},
    [9489]={ q=9489, t="Cleansing the Scar", l=0, r=0, class="PRIEST",},
+   [9352]={ q=9352, t="Darnassian Intrusions", lvl=6, },
+   [8895]={ q=8895, t="Delivery to the North Sanctum", lvl=6, },
+   [9119]={ q=9119, t="Malfunction at the West Sanctum", lvl=5, },
 }

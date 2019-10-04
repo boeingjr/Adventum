@@ -94,7 +94,7 @@ do
 
    local function acceptReport(obj)
       local res = true
-      tcd("acceptNode: "..tostring(obj))
+--      tcd("acceptNode: "..tostring(obj))
       local freshQuestLog = {}
       local logIndex = 1
       local titleFromQuestLog, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(logIndex)
@@ -113,7 +113,7 @@ do
 	 elseif IsQuestFlaggedCompleted(qID) then
 	    local line = "Did:      " .. questDB[qID].t -- report it was tagged as ignored (warn)
 --	    tcy(line)
-	    updateLine(line, yellow)
+	    updateLine(line, grey)
 	 elseif AdventumIgnoreQuests[qID] then
 	    local line = "Ignored:      " .. questDB[qID].t -- report it was tagged as ignored (warn)
 --	    tcy(line)
@@ -176,7 +176,7 @@ do
 --	    tcd("THIRD looking at quest with ID " .. qID)
 	    local line = "Did:   " .. questDB[qID].t -- report it needs to be delivered (OK)
 --	    tcr(line)
-	    updateLine(line, red)
+	    updateLine(line, grey)
 	 elseif AdventumIgnoreQuests[qID] then
 --	    tcd("FOURTH looking at quest with ID " .. qID)
 	    local line = "Ignored: " .. questDB[qID].t  -- report it was delivered (OK)
@@ -233,7 +233,7 @@ do
 	 elseif IsQuestFlaggedCompleted(qID) then
 	    local line = "Did:       " .. questDB[qID].t -- report it was done before (warn)
 --	    tcy(line)
-	    updateLine(line, yellow)
+	    updateLine(line, grey)
 	 else
 	    local line = "Not in active list: " .. questDB[qID].t -- report it was not picked up (warn)
 	    updateLine(line, yellow)
@@ -282,13 +282,24 @@ do
 
    local function lootReport(obj)
       local res = true
-      tcd("loot report")
-      tcd("loot report" .. tostring(obj))
       for qID,list in pairs(obj.tbl) do
-	 tcd("looking at loot for quest .. " .. qID)
+--	 tcd("looking at loot for quest .. " .. qID)
 	 if not IsQuestFlaggedCompleted(qID) and not AdventumIgnoreQuests[qID] then
 	    for i, v in ipairs(list) do
-	       if AdventumIsInBag(v) then
+	       local logIndex = 1
+	       local questLogCompleted
+	       local titleFromQuestLog, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(logIndex)
+	       while titleFromQuestLog do
+		  if not isHeader then
+		     if questID == qID then
+			questLogCompleted = true
+		     end
+		  end
+		  logIndex = logIndex + 1
+		  titleFromQuestLog, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(logIndex)
+	       end
+	       
+	       if AdventumIsInBag(v) or questLogCompleted then
 		  local line = "Looted: " .. v
 --		  tcg(line)
 		  updateLine(line, grey)
@@ -352,12 +363,21 @@ do
       return self
    end
 
+   local function canDoQuest(questID)
+      local raceName, raceFile, raceID = UnitRace("player")
+      tcd("canDoQuest for " .. questID)
+      local isRightFaction = questDB[questID].s == nil or questDB[questID].s == "Both" or questDB[questID].s == raceFile or ((questDB[questID].s == "Horde" and (raceFile == "Orc" or raceFile == "Undead" or raceFile == "Tauren" or raceFile == "Troll" or raceFile == "BloodElf")) or (questDB[questID].s == "Alliance" and (raceFile == "Human" or raceFile == "NightElf" or raceFile == "Dwarf" or raceFile == "Gnome" or raceFile == "Draenei")))
+      local isRightClass = questDB[questID].class == nil or questDB[questID].class == AdventumPlayerClass
+      return isRightFaction and isRightClass
+   end
+
    local function accept(self, ...)
       local tbl = {...}
       local stripped = {}
       local i = 1
       for ii, questID in ipairs(tbl) do
-	 if questDB[questID].class == nil or questDB[questID].class == AdventumPlayerClass then
+--	 if questDB[questID].class == nil or questDB[questID].class == AdventumPlayerClass then
+	 if canDoQuest(questID) then
 	    stripped[i] = questID
 	    i = i+1
 --	    tcd("Do accept: " .. questDB[questID].t)
@@ -377,7 +397,8 @@ do
       local stripped = {}
       local i = 1
       for ii, questID in ipairs(tbl) do
-	 if questDB[questID].class == nil or questDB[questID].class == AdventumPlayerClass then
+--	 if questDB[questID].class == nil or questDB[questID].class == AdventumPlayerClass then
+	 if canDoQuest(questID) then
 	    stripped[i] = questID
 	    i = i+1
 --	    tcd("Do deliver: " .. questDB[questID].t)
@@ -397,7 +418,8 @@ do
       local stripped = {}
       local i = 1
       for ii, questID in ipairs(tbl) do
-	 if questDB[questID].class == nil or questDB[questID].class == AdventumPlayerClass then
+--	 if questDB[questID].class == nil or questDB[questID].class == AdventumPlayerClass then
+	 if canDoQuest(questID) then
 	    stripped[i] = questID
 	    i = i+1
 --	    tcd("Do complete: " .. questDB[questID].t)
@@ -428,7 +450,8 @@ do
       local stripped = {}
       local y = false
       for questID, t in pairs(tbl) do
-	 if questDB[questID].class == nil or questDB[questID].class == AdventumPlayerClass then
+--	 if questDB[questID].class == nil or questDB[questID].class == AdventumPlayerClass then
+	 if canDoQuest(questID) then
 	    stripped[questID] = t
 	    y = true
 	 end
