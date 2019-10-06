@@ -1,0 +1,6 @@
+-- q=QuestID, t=Title, l=level, r=required level, f=side, e=race, s=class, b=start, p=stop, h=sharable, u=difficulties, c=requires, o=unlocks, z=zone, xy=coordinates
+AdventumQuestDB = {
+  [109]={q=109,t="Report to Gryan Stoutmantle",l=10,r=9,f="alliance",e=nil,s=None,b={{i="npc233",n="Farmer Saldean",z="Westfall",xy={{x=56,y=31.2}}},{i="npc237",n="Farmer Furlbrow",z="Westfall",xy={{x=60,y=19.4}}},{i="npc240",n="Marshal Dughan",z="Elwynn Forest",xy={{x=42.2,y=65.8}}},{i="npc261",n="Guard Thomas",z="Elwynn Forest",xy={{x=74,y=72.2}}},{i="npc963",n="Deputy Rainer",z="Elwynn Forest",xy={{x=24.2,y=74.4},{x=24.2,y=74.6}}}},p={{i="npc234",n="Gryan Stoutmantle",z="Westfall",xy={{x=56.2,y=47.4},{x=56.2,y=47.6}}}},h=true,u={yellow=9,green=13,grey=16},},
+  [1100]={q=1100,t="Lonebrow's Journal",l=34,r=29,f="alliance",e=nil,s=None,b=nil,p={{i="npc4048",n="Falfindel Waywarder",z=nil,xy=nil}},h=false,u={red=29,orange=30,yellow=32,green=37,grey=43},},
+  [1190]={q=1190,t="Keeping Pace",l=41,r=29,f="both",e=nil,s=None,b={{i="npc4630",n="Pozzik",z=nil,xy=nil}},p={{i="object20805",n="Rizzle's Unguarded Plans",z="Thousand Needles",xy={{x=77.2,y=77.5},{x=77.3,y=77.4}}}},h=true,u={red=29,orange=37,yellow=39,green=44,grey=51},c={1137},},
+}

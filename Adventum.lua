@@ -13,8 +13,6 @@ end
 SLASH_ADVENTUM1 = "/adventum"
 SLASH_ADVENTUM2 = "/adv"
 SlashCmdList["ADVENTUM"] = function(cmd)
-   local entry = "INSERTED: " .. cmd
-   addEntry(entry)
 end 
 
 local questMirror = {}
@@ -25,10 +23,6 @@ ADDON_LOADED_EVENT:SetScript("OnEvent",
   function(self, event, name)
     if name == "Adventum" then
        tcm("Adventum loaded")
-       if AdventumGather == nil then
-	  AdventumGatherCount = 0
-	  AdventumGather = {}
-       end
     end
   end
 )
@@ -37,7 +31,7 @@ local PLAYER_LEVEL_UP_EVENT = CreateFrame("Frame")
 PLAYER_LEVEL_UP_EVENT:RegisterEvent("PLAYER_LEVEL_UP")
 PLAYER_LEVEL_UP_EVENT:SetScript("OnEvent",
   function(self, event, level)
-     addEntry("LEVEL: " .. level)
+     tcm("LEVEL: " .. level)
   end
 )
 
