@@ -7,7 +7,58 @@ from bs4 import BeautifulSoup
 
 QuestIds = []
 
-fetchedQuestIds = [179, 170, 3107, 3113, 3109, 3108, 3114, 3110, 3112, 3106, 3115, 783, 7, 5261, 33, 18, 3100, 15, 21,
+if len(sys.argv) == 1:
+    print "No arguments, exiting"
+    exit(0)
+
+def ScanFile(luaName, datName):
+    # lua is the name of the file to be scanned, confirmed to exist
+    # dat is a file name of a file to (over)write
+    print "called ScanFile, filename is valid at this point {} -- {}".format(luaName, datName)
+    luaTmp = open(luaName, "r")
+    lua = luaTmp.read()
+    luaTmp.close()
+    qs = re.findall("QLU NEW: \{?(\d+)\}? \[", lua)
+    for q in qs:
+        QuestIds.append(q)
+    dat = open(datName, "w")
+    output = " ".join(QuestIds)
+    print "Found QuestIds: {}".format(output)
+    dat.write(output)
+    dat.close()
+
+dat = None
+character = re.search("AAs/(\w+)\.(lua|dat)", sys.argv[1])
+if character:
+    character = character.group(1)
+    lua = "AAs/{}.lua".format(character)
+    dat = "AAs/{}.dat".format(character)
+    if os.path.isfile(lua):
+        print "Scanning played quest route for character {}".format(character)
+        doScan = False
+        if os.path.isfile(dat):
+            print "Already has a .dat file"
+            if os.path.getmtime(dat) < os.path.getmtime(lua):
+                print "Gonna rebuild .dat file"
+                doScan = True
+            else:
+                print "--------------------------------------------------------------"
+                print "{} is newer than {},\nand thus likely to be based on same data.\n\nIf you want to rescan, please delete {}".format(dat, lua, dat)
+                print "--------------------------------------------------------------"
+                doScan = True # TODO: while making this script we want to rescan all the time, change when happy
+        else:
+            print "No .dat file, lessgo"
+            doScan = True
+        if doScan:
+            ScanFile(lua, dat)
+    else:
+        print "No played quest route for character {} exists".format(character)
+        exit(0)
+else:
+    print "Cannot find a character name, possibly wrong file type or missing file"
+    exit(0)
+
+OldQuestIds = [179, 170, 3107, 3113, 3109, 3108, 3114, 3110, 3112, 3106, 3115, 783, 7, 5261, 33, 18, 3100, 15, 21,
                    3903, 6, 54, 3904, 3905, 2158, 40, 47, 35, 62, 60, 106, 111, 85, 88, 107, 112, 114, 86, 84, 87, 76,
                    109, 61, 1097, 184, 239, 1638, 332, 333, 334, 1639, 1640, 1665, 1666, 37, 52, 83, 5545, 1667, 45,
                    71, 39, 59, 11, 176, 46, 64, 36, 151, 9, 22, 38, 12, 102, 6181, 153, 6281, 6261, 6285, 399, 353,
@@ -78,11 +129,11 @@ fetchedQuestIds = [179, 170, 3107, 3113, 3109, 3108, 3114, 3110, 3112, 3106, 311
                    729, 948, 4740, 944, 731, 949, 950, 5321, 1056, 991, 1008, 1070, 1033, 1054, 741, 1007, 1009, 1023,
                    1024, 1134, 942, 281, 471, 288, 943, 470, 305, 294, 306, 275, 175, 240, 149, 66, 67, 177, 154, 57,
                    157, 181, 173, 68, 230, 158, 262, 265, 156, 266, 69, 453, 159, 268, 133, 323, 134, 70, 72, 74, 94, 75,
-                   75, 78, 337, 79, 58, 80, 97, 34, 248, 178, 249, 538, 1078, 3765, 281, 471, 289, 472, 473, 464,
+                   75, 78, 337, 79, 58, 80, 97, 34, 248, 178, 249, 538, 1078, 3765, 281, 471, 289, 472, 473, 464, 4264
 ]
 
 StartEndIds = [
-    "npc233", "npc237","npc240","npc261", "npc963", "npc234", "object20805"
+    "npc233", "npc237","npc240","npc261", "npc963", "npc234", "object20805", "npc4048", "npc4630"
 ]
 
 titlePattern = "[A-Z0-9][-a-zA-Z0-9'?!:.,+= ]*"
@@ -91,13 +142,17 @@ QuestDB = {}
 
 def fetchQuests(questId):
     fname = "QuestDB/{}.html".format(questId)
+    url = "https://classic.wowhead.com/quest={}".format(questId)
     if not os.path.isfile(fname):
-        url = "https://classic.wowhead.com/quest={}".format(questId)
-        print "Fetching from WowHead for questId {} on url: {}".format(questId, url)
+        print "Fetching from WowHead for QuestId {} on url: {}".format(questId, url)
         c=urllib2.urlopen(url).read()
         f=open(fname, "w+")
         f.write(c)
         f.close()
+        return 1
+    else:
+        print "Already have file for QuestId {} on url: {}".format(questId, url)
+        return 0
 #end fetchQuests
 
 def fetchStartEnds(id):
@@ -105,29 +160,35 @@ def fetchStartEnds(id):
     m = re.search("([a-z]+)(\d+)", id)
     _type = m.group(1)
     _id = m.group(2)
+    url = "https://classic.wowhead.com/{}={}".format(_type, _id)
     if not os.path.isfile(fname):
-        url = "https://classic.wowhead.com/{}={}".format(_type, _id)
-        print "Fetching from WowHead for id {} on url: {}".format(id, url)
+        print "Fetching from WowHead for {} on url: {}".format(id, url)
         c=urllib2.urlopen(url).read()
         f=open(fname, "w+")
         f.write(c)
         f.close()
+        return 1
+    else:
+        print "Already have file for {} on url: {}".format(id, url)
+        return 0
 #end fetchQuests
 
 sleepCounter = 0
 
+print "starting to look at quest ids"
 for questId in QuestIds:
-    sleepCounter = sleepCounter + 1
-    if sleepCounter == 30:
-        time.sleep(60)
+    if sleepCounter == 5:
+        print "taking a short break"
+        time.sleep(25)
         sleepCounter = 0
-    fetchQuests(questId)
+    sleepCounter = sleepCounter + fetchQuests(questId)
 
 sleepCounter = 0
 
+print "starting to look at start end ids"
 for startEndId in StartEndIds:
-    sleepCounter = sleepCounter + 1
-    if sleepCounter == 30:
-        time.sleep(60)
+    if sleepCounter == 5:
+        print "taking a short break"
+        time.sleep(25)
         sleepCounter = 0
-    fetchStartEnds(startEndId)
+    sleepCounter = sleepCounter + fetchStartEnds(startEndId)

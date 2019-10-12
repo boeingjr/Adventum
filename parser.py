@@ -121,52 +121,7 @@ def StartEndQuestParse(c, isStart):
     lis = li.split("[br]")
     r = None
     for l in lis:
-        m = re.search("Start: \[url=\\\/(\w+)=(\d+)\](.*)\[\\\/url+]", l)
-        _type = "nil"
-        _id = "nil"
-        _name = "nil"
-        _loc = "z=nil,xy=nil"
-        if m:
-            _type = m.group(1)
-            _id = m.group(2)
-            _name = m.group(3)
-            _key = "{}{}".format(_type,_id)
-            if _key in StartEndLocations:
-                _loc = StartEndLocations[_key]
-            else:
-                MissingStartEndLocations.append(_key)
-        if r:
-            r = "{},{{i=\"{}{}\",n=\"{}\",{}}}".format(r, _type, _id, _name, _loc)
-        else:
-            r = "{{{{i=\"{}{}\",n=\"{}\",{}}}".format(_type, _id, _name, _loc)
-    r = "{}}}".format(r)
-    return r
-
-def EndQuestParse(c):
-    strip = re.search("WH.markup.printHtml\(\"(.*\[\\\/ul\])", c).group(1)
-    strip = strip.replace("[ul]", "<ul>")
-    strip = strip.replace("[\/ul]", "</ul>")
-    strip = strip.replace("[li]", "<li>")
-    strip = strip.replace("[\/li]", "</li>")
-    lis = BeautifulSoup(strip, features="html.parser").find_all('li')
-    li = None
-    for l in lis:
-        l = str(l)
-        if re.search("icon name=quest_end", l):
-            li = l
-            break
-    if not li:
-        return "nil"
-    li = li.replace("[span=invisible]", "")
-    li = li.replace("[\/span]", "")
-    li = li.replace("[icon name=quest_end]", "")
-    li = li.replace("[\/icon]", "")
-    li = li.replace("<li>", "")
-    li = li.replace("</li>", "")
-    lis = li.split("[br]")
-    r = None
-    for l in lis:
-        m = re.search("End: \[url=\\\/(\w+)=(\d+)\](.*)\[\\\/url+]", l)
+        m = re.search("{}: \[url=\\\/(\w+)=(\d+)\](.*)\[\\\/url+]".format(upperkey), l)
         _type = "nil"
         _id = "nil"
         _name = "nil"
@@ -222,8 +177,8 @@ def QuickFactsParse(table):
     forSide = ForSideParse(scriptContents)
     forRace = ForRaceParse(scriptContents)
     forClass = ForClassParse(scriptContents)
-    startQuest = StartQuestParse(scriptContents)
-    endQuest = EndQuestParse(scriptContents)
+    startQuest = StartEndQuestParse(scriptContents, True)
+    endQuest = StartEndQuestParse(scriptContents, False)
     isSharable = SharableParse(scriptContents)
     hasDifficulties = DifficultiesParse(scriptContents)
 
@@ -328,3 +283,4 @@ QuestDBFile.write("}\n")
 QuestDBFile.close()
 
 print "No data for quests: {}".format(", ".join(MissingQuests))
+print "No data for start and end locations: {}".format(", ".join(MissingStartEndLocations))
