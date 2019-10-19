@@ -2,40 +2,6 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.blizzard.com/wow/ui/
     http://wowprogramming.com/FrameXML/UI.xsd">
-<!--
-    <Frame name="AdventumSideBarLeft" parent="UIParent" frameStrata="BACKGROUND">
-      <Size>
-	<AbsDimension x="460" y="1024" />
-      </Size>
-      <Anchors>
-	<Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="UIParent"/>
-      </Anchors>
-      <Layers>
-	<Layer level="BACKGROUND" setAllPoints="true">
-	  <Texture>
-            <Size x="460" y="1080" />
-            <Color a="1" r="0" g="0" b="0" />
-	  </Texture>
-	</Layer>
-      </Layers>
-    </Frame>
-    <Frame name="AdventumSideBarRight" parent="UIParent" frameStrata="BACKGROUND">
-      <Size>
-	<AbsDimension x="460" y="1024" />
-      </Size>
-      <Anchors>
-	<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" relativeTo="UIParent"/>
-      </Anchors>
-      <Layers>
-	<Layer level="BACKGROUND" setAllPoints="true">
-	  <Texture>
-            <Size x="460" y="1080" />
-            <Color a="1" r="0" g="0" b="0" />
-	  </Texture>
-	</Layer>
-      </Layers>
-    </Frame>
--->
     <Frame name="AdventumCanvas" parent="UIParent" frameStrata="DIALOG" toplevel="true" enableMouse="true" movable="true">
       <Scripts>
 	<OnLoad>AdventumCanvas:RegisterForDrag("LeftButton");</OnLoad>
@@ -43,7 +9,7 @@
 	<OnDragStop>AdventumCanvas:StopMovingOrSizing();</OnDragStop>
       </Scripts>
       <Size>
-	<AbsDimension x="300" y="200" />
+	<AbsDimension x="94" y="24" />
 	<!--AbsDimension x="440" y="356" /-->
       </Size>
       <Anchors>

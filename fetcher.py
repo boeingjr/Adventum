@@ -3,9 +3,17 @@ import re
 import os
 import sys
 import time
-from bs4 import BeautifulSoup
 
 QuestIds = []
+QuestIdHash = {}
+
+seisII = [
+#    "npc233", "npc237","npc240","npc261", "npc963", "npc234", "object20805", "npc4048", "npc4630"
+]
+qidsII = [
+    126, 353, 1678, 1683, 3110, 3106, 3107, 3113, 3109, 3114, 3115, 3112, 3108,
+    287, 5261, 3101, 3102, 3104, 3103, 3100, 3105, 1686, 3101, 3102, 3104, 3103, 3100, 3105, 1598, 1599, 1689, 1688, 1685, 1715
+]
 
 if len(sys.argv) == 1:
     print "No arguments, exiting"
@@ -18,9 +26,13 @@ def ScanFile(luaName, datName):
     luaTmp = open(luaName, "r")
     lua = luaTmp.read()
     luaTmp.close()
-    qs = re.findall("QLU NEW: \{?(\d+)\}? \[", lua)
+    qs = re.findall(r'QLU NEW: \{?(\d+)\}? \[', lua)
     for q in qs:
-        QuestIds.append(q)
+        if not q in QuestIdHash.keys():
+            QuestIds.append(q)
+            QuestIdHash[q] = True
+    for qid in qidsII:
+        QuestIds.append("{}".format(qid))
     dat = open(datName, "w")
     output = " ".join(QuestIds)
     print "Found QuestIds: {}".format(output)
@@ -28,11 +40,11 @@ def ScanFile(luaName, datName):
     dat.close()
 
 dat = None
-character = re.search("AAs/(\w+)\.(lua|dat)", sys.argv[1])
+character = re.search(r'trails/(\w+)\.(lua|dat)', sys.argv[1])
 if character:
     character = character.group(1)
-    lua = "AAs/{}.lua".format(character)
-    dat = "AAs/{}.dat".format(character)
+    lua = "trails/{}.lua".format(character)
+    dat = "trails/{}.dat".format(character)
     if os.path.isfile(lua):
         print "Scanning played quest route for character {}".format(character)
         doScan = False
@@ -132,9 +144,20 @@ OldQuestIds = [179, 170, 3107, 3113, 3109, 3108, 3114, 3110, 3112, 3106, 3115, 7
                    75, 78, 337, 79, 58, 80, 97, 34, 248, 178, 249, 538, 1078, 3765, 281, 471, 289, 472, 473, 464, 4264
 ]
 
-StartEndIds = [
-    "npc233", "npc237","npc240","npc261", "npc963", "npc234", "object20805", "npc4048", "npc4630"
-]
+StartEndIds = []
+if os.path.isfile("StartEndIds.tmp"):
+    print "Using StartEndIds"
+    seiTmp = open("StartEndIds.tmp", "r")
+    seiStuff = seiTmp.read()
+    seiTmp.close()
+    seis = seiStuff.split(", ")
+    for sei in seis:
+        print "appending {}".format(sei)
+        StartEndIds.append(sei)
+#    os.remove("StartEndIds.tmp")
+
+for sei in seisII:
+    StartEndIds.append(sei)
 
 titlePattern = "[A-Z0-9][-a-zA-Z0-9'?!:.,+= ]*"
 
@@ -157,7 +180,7 @@ def fetchQuests(questId):
 
 def fetchStartEnds(id):
     fname = "StartEndDB/{}.html".format(id)
-    m = re.search("([a-z]+)(\d+)", id)
+    m = re.search(r'([a-z]+)(\d+)', id)
     _type = m.group(1)
     _id = m.group(2)
     url = "https://classic.wowhead.com/{}={}".format(_type, _id)

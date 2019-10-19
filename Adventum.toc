@@ -2,5 +2,11 @@
 ## Title: Adventum
 ## Notes: Gathering quest solving route
 ## Author: boeingJr
-## SavedVariablesPerCharacter: AdventumGather, AdventumGatherCount
+## SavedVariablesPerCharacter: AdventumProgress
+Colors.lua
+Utilities.lua
+AdventumQuestDB.lua
+Adventum.xml
 Adventum.lua
+Dwarf_Gnome_Start.lua
+Elwynn_DunMorogh.lua

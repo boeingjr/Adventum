@@ -1,0 +1,29 @@
+local node = AdventumNode
+local nt = {}
+nt.first = node("first", nil):accept(224,267):tip("South on road")
+nt.getThelsamarQuests = node("getThelsamarQuests", nt.first):accept(416,1339,418):tip("Bind in Thelsamar", "Get Flightpath")
+nt.turninStormpike = node("turninStormpike", nt.getThelsamarQuests):turnin(1339):tip("Kill quest stuff on the way")
+nt.getFilthyPaws = node("getFilthyPaws", nt.turninStormpike):accept(307):tip("Kill quest stuff on the way")
+nt.doFilthyPaws = node("doFilthyPaws", nt.getFilthyPaws):complete(307):tip("Kill quest stuff on the way")
+nt.turninFilthyPaws = node("turninFilthyPaws", nt.doFilthyPaws):turnin(307):accept(1338)
+nt.completeThelsmarQuests = node("complete", nt.turninFilthyPaws):complete(416,418,224,267)
+nt.turninThelsamarQuests = node("turninThelsamarQuests", nt.completeThelsmarQuests):turnin(416,418,224,267):accept(436)
+nt.goToExcavation = node("goToExcavation", nt.turninThelsamarQuests):turnin(436)
+nt.getExcavationFu = node("getExcavationFu", nt.goToExcavation):accept(298)
+nt.returnReport = node("returnReport", nt.getExcavationFu):turnin(298)
+nt.getIFReport = node("getIFReport", nt.returnReport):accept(301)
+nt.turninDefendKings = node("turninDefendKings", nt.getIFReport):turnin(224,267)
+nt.getNextDefend = node("getNextDefend", nt.turninDefendKings):accept(237)
+nt.doNextDefend = node("doNextDefend", nt.getNextDefend):complete(237)
+nt.turninNextDefend = node("turninNextDefend", nt.doNextDefend):turnin(237)
+nt.getWaitDefend = node("getWaitDefend", nt.turninNextDefend):accept(263)
+nt.goToIFWithReportEtc = node("goToIF", nt.getWaitDefend):turnin(301):tip("this has a fu we don't pick up yet", "also there should be some flight point bus boying for dorfs and gnomes")
+nt.getTramRats = node("getTramRats", nt.goToIFWithReportEtc):accept(6661)
+nt.doTramRats = node("doTramRats", nt.getTramRats):complete(6661)
+nt.turnInTramRats = node("turnInTramRats", nt.doTramRats):turnin(6661)
+nt.acceptNipsy = node("acceptNipsy", nt.turnInTramRats):accept(6662)
+nt.deliverNipsy = node("deliverNipsy", nt.acceptNipsy):turnin(6662,1338):accept(399):tip("If you don't have it, get FP")
+nt.getBlanchy = node("getBlanchy", nt.deliverNipsy):accept(64,109,36,151):tip("You can try to do and deliver Hogger at this point")
+
+
+AdventumNodeTrails["Alliance_13_20_Nodetrail"] = nt

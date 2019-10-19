@@ -141,22 +141,22 @@ do
       local logIndex = 1
       local titleFromQuestLog, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(logIndex)
       while titleFromQuestLog do
-	 if not isHeader then
-	    if isComplete then
-	       freshQuestLog[questID] = true
-	    else
-	       local ii = 1
-	       local defined = GetQuestLogLeaderBoard(ii, logIndex)
-	       if defined == nil then
-		  tcd("not marked as completed but has no objectives: " .. titleFromQuestLog)
-		  freshQuestLog[questID] = true
-	       else
-		  freshQuestLog[questID] = false
-	       end
-	    end
-	 end
-	 logIndex = logIndex + 1
-	 titleFromQuestLog, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(logIndex)
+		if not isHeader then
+			if isComplete then
+				freshQuestLog[questID] = true
+			else
+				local ii = 1
+				local defined = GetQuestLogLeaderBoard(ii, logIndex)
+				if defined == nil then
+					tcd("not marked as completed but has no objectives: " .. titleFromQuestLog)
+					freshQuestLog[questID] = true
+				else
+					freshQuestLog[questID] = false
+				end
+			end
+		end
+		logIndex = logIndex + 1
+		titleFromQuestLog, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(logIndex)
       end
       for i,qID in ipairs(obj) do
 	 tcd("looking at quest with ID " .. qID)

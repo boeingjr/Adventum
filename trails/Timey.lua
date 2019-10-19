@@ -97,6 +97,9 @@ AdventumGather = {
 	"LEVEL: 7", -- [95]
 	"LEVEL: 8", -- [96]
 	"QLU NEW: 40 [A Fishy Peril]", -- [97]
+
+
+
 	"QLU NEW: 47 [Gold Dust Exchange]", -- [98]
 	"QUEST_TURNED_IN: 40 [A Fishy Peril]", -- [99]
 	"QLU NEW: 35 [Further Concerns]", -- [100]
@@ -105,6 +108,10 @@ AdventumGather = {
 	"QLU OBJECTIVE: Gold Dust: 1/10 false", -- [103]
 	"QLU NEW: 106 [Young Lovers]", -- [104]
 	"QUEST_TURNED_IN: 106 [Young Lovers]", -- [105]
+
+
+
+
 	"QLU NEW: 111 [Speak with Gramma]", -- [106]
 	"QLU NEW: 85 [Lost Necklace]", -- [107]
 	"QLU NEW: 88 [Princess Must Die!]", -- [108]
@@ -117,7 +124,11 @@ AdventumGather = {
 	"QLU OBJECTIVE: Crystal Kelp Frond: 3/4 false", -- [115]
 	"QLU OBJECTIVE: Crystal Kelp Frond: 4/4 true", -- [116]
 	"QUEST_TURNED_IN: 112 [Collecting Kelp]", -- [117]
+
+
 	"QLU NEW: 114 [The Escape]", -- [118]
+
+
 	"QUEST_TURNED_IN: 85 [Lost Necklace]", -- [119]
 	"QLU NEW: 86 [Pie for Billy]", -- [120]
 	"LEVEL: 9", -- [121]
@@ -152,6 +163,9 @@ AdventumGather = {
 	"QLU NEW: 109 [Report to Gryan Stoutmantle]", -- [150]
 	"QUEST_TURNED_IN: 60 [Kobold Candles]", -- [151]
 	"QLU NEW: 61 [Shipment to Stormwind]", -- [152]
+
+
+
 	"QLU NEW: 1097 [Elmore's Task]", -- [153]
 	"INSERTED: ", -- [154]
 	"INSERTED: get to level 10 before after quest turn in in GS so you can get class quest", -- [155]
@@ -254,6 +268,10 @@ AdventumGather = {
 	"QLU OBJECTIVE: Painted Gnoll Armband: 8/8 true", -- [252]
 	"QUEST_TURNED_IN: 11 [Riverpaw Gnoll Bounty]", -- [253]
 	"QUEST_TURNED_IN: 184 [Furlbrow's Deed]", -- [254]
+
+
+
+
 	"QLU NEW: 64 [The Forgotten Heirloom]", -- [255]
 	"QLU NEW: 36 [Westfall Stew]", -- [256]
 	"QLU NEW: 151 [Poor Old Blanchy]", -- [257]
